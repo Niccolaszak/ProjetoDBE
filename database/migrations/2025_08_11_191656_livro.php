@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignId('genero_id')->constrained('genero');
             $table->integer('quantidade_disponivel')->default(0);
             $table->string('acao', 50);
+            $table->string('responsavel_mov', 100);
             $table->timestamps();
         });
 
