@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('titulo', 100);
             $table->string('autor', 100);
             $table->foreignId('genero_id')->constrained('genero');
+            $table->text('descricao_livro');
             $table->integer('quantidade_disponivel')->default(0);
             $table->string('acao', 50);
             $table->string('responsavel_mov', 100);
