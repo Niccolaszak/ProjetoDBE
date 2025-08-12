@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class HelloWordController extends Controller
+class HelloWorldController extends Controller
 {
     public function exibirMensagem(){
         return "Olá Prof! Esta é a rota HelloWorld que solicitou! <br><h3>Solicitação:</h3>Primeira Rota e Controller Simples: Uma rota básica e um controller
