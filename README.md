@@ -1,6 +1,26 @@
 # ProjetoDBE
 Repositorio para o projeto final de Desenvolvimento Back-End (DSWMII)
 
+# Integrantes
+1. Aline Brunetti
+2. Nicolas Uczak
+3. Vinicius Buskievicz
+
+# Instruções para rodar:
+1. Ative o wamp
+2. Crie um banco de dados GerenciamentoLivraria em phpmyadmin
+3. Rode os comandos
+   ```bash
+   composer install
+   php artisan migrate:fresh
+   php artisan migrate:fresh --seed
+   ```
+4. Para acessar a rota simples
+   ```bash
+   php artisan serve
+   ```
+   http://127.0.0.1:8000/hello-world
+
 # Etapa 1 - 15/08
 
 Foram criadas 5 tabelas principais para atender às funcionalidades do sistema:
