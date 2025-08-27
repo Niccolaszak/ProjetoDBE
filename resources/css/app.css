@@ -1,3 +1,22 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Overlay de pontos */
+.points-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+        radial-gradient(circle, rgba(255, 255, 255, 0.4) 2px, transparent 2px),
+        radial-gradient(circle, rgba(255, 255, 255, 0.4) 2px, transparent 2px),
+        radial-gradient(circle, rgba(255, 255, 255, 0.4) 2px, transparent 2px);
+    background-size: 300px 300px;
+    animation: falling-dots 8s linear infinite;
+}
+
+@keyframes falling-dots {
+    0% { background-position: 0 0, 150px 150px, 300px 300px; }
+    100% { background-position: 0 300px, 150px 450px, 300px 600px; }
+}
