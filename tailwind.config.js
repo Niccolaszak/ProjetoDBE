@@ -16,8 +16,9 @@ export default {
             },
             colors: {
                 primary: '#af1e1eff',   
-                secondary: '#fbbf24ff', 
-                accent: '#10aeb9ff',    
+                secondary: '#fbb024ff', 
+                accent: '#10aeb9ff',
+                BlackBlue: '#4343a5ff'    
             },
         },
     },
