@@ -1,2 +1,2 @@
-<img src="{{ asset('imagens/iconelivro.webp') }}" alt="Logo" {{ $attributes }} class="w-20 h-20 object-contain" />
+<img src="{{ asset('imagens/imgLogo.png') }}" alt="Logo" {{ $attributes }} class="object-contain" style="max-width: 100%; height: auto;" />
 
