@@ -33,12 +33,28 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'cargo' => 'required|string',
         ]);
+
+        $parts = explode(' ', $request->name);
+        $first = strtolower($parts[0]);
+        $last = strtolower(end($parts));
+        $baseUsername = $first . '.' . $last;
+
+        $username = $baseUsername;
+        $count = 1;
+
+        while(User::where('username', $username)->exists()) {
+            $username = $baseUsername . $count;
+            $count++;
+        }
 
         $user = User::create([
             'name' => $request->name,
+            'username' => $username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'cargo' => $request->cargo,
         ]);
 
         event(new Registered($user));
