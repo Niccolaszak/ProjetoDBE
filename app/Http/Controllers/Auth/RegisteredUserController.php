@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Cargo;
+use App\Models\Setor;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,7 +21,9 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
+        $cargos = Cargo::all();
+        $setores = Setor::all();
+        return view('auth.register', compact('cargos', 'setores'));
     }
 
     /**
@@ -33,12 +37,18 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'cargo_id' => ['required', 'exists:cargos,id'],
+            'setor_id' => ['required', 'exists:setores,id'],
+            'salario' => ['required', 'numeric', 'min:0'],
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'cargo_id' => $request->cargo_id,
+            'setor_id' => $request->setor_id,
+            'salario' => $request->salario,
         ]);
 
         event(new Registered($user));
