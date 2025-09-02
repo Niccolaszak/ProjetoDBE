@@ -35,6 +35,8 @@ Essa modelagem foi pensada para garantir organização, segurança no acesso e c
 
 # Etapa 2 - 05/09
 
-As tabelas usuario e funcionario não são mais utilizadas a partir daqui, elas ainda existem e estão com os dados solicitados na primeira etapa, MAS para continuação coesa do projeto, será utilizada a tabela de usuarios criada pelo Breeze, adaptadas junto às tabelas cargos e setores.
+As tabelas usuario e funcionario não são mais utilizadas a partir desta etapa; elas permanecem existentes, com os dados inseridos na primeira fase, mas, para a continuidade coesa do projeto, será adotada a tabela de usuários fornecida pelo Breeze, integrada às tabelas cargos e setores.
+
+Como o projeto destina-se ao gerenciamento interno de uma livraria, os funcionários não possuem permissão para se autoregistrar. Dessa forma, o cadastro é realizado por um usuário autorizado da plataforma, e, no primeiro login, o funcionário é obrigado a redefinir sua senha. Para consolidar o registro como efetivamente funcional, foram adicionados os campos cargo, salário e setor ao formulário de registro e à base de dados. O RegisteredUserController foi ajustado para persistir essas informações e atribuir uma senha temporária, o middleware ForcarRedefinirSenha garante que o usuário seja redirecionado à página de redefinição de senha no primeiro acesso, e o SenhaController, juntamente com a view senha-redefinir.blade.php, foi implementado utilizando os componentes do Breeze, assegurando que, após a redefinição da senha, o usuário tenha acesso ao dashboard e às demais funcionalidades protegidas da plataforma.
     
     
