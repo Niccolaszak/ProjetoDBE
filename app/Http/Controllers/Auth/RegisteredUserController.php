@@ -49,6 +49,7 @@ class RegisteredUserController extends Controller
             'cargo_id' => $request->cargo_id,
             'setor_id' => $request->setor_id,
             'salario' => $request->salario,
+            'forcar_redefinir_senha' => true,
         ]);
 
         event(new Registered($user));
