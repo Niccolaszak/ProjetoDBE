@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HelloWorldController;
 use App\Http\Middleware\ForcarRedefinirSenha;
+use App\Http\Controllers\SenhaController;
 
 Route::get('/', function () {
     return view('welcome');
