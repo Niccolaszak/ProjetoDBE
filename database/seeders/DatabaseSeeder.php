@@ -20,6 +20,8 @@ class DatabaseSeeder extends Seeder
             FuncionarioSeeder::class,
             UsuarioSeeder::class,
             LivroSeeder::class,
+            SetoresSeeder::class,
+            CargosSeeder::class,
         ]);
         // User::factory(10)->create();
 
