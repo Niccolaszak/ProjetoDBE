@@ -18,7 +18,7 @@
 
         <!-- Select de Cargo -->
         <div class="mt-4">
-            <x-label for="cargo_id" :value="__('Cargo')" />
+            <x-input-label for="cargo_id" :value="__('Cargo')" />
             <select name="cargo_id" id="cargo_id" required class="block mt-1 w-full">
                 <option value="">-- Selecione o cargo --</option>
                 @foreach($cargos as $cargo)
@@ -32,7 +32,7 @@
 
         <!-- Select de Setor -->
         <div class="mt-4">
-            <x-label for="setor_id" :value="__('Setor')" />
+            <x-input-label for="setor_id" :value="__('Setor')" />
             <select name="setor_id" id="setor_id" required class="block mt-1 w-full">
                 <option value="">-- Selecione o setor --</option>
                 @foreach($setores as $setor)
@@ -46,8 +46,8 @@
 
         <!-- Campo de Salário -->
         <div class="mt-4">
-            <x-label for="salario" :value="__('Salário')" />
-            <x-input id="salario" class="block mt-1 w-full" type="number" name="salario" value="{{ old('salario') }}" required step="0.01" />
+            <x-input-label for="salario" :value="__('Salário')" />
+            <x-text-input id="salario" class="block mt-1 w-full" type="number" name="salario" value="{{ old('salario') }}" required step="0.01" />
             <x-input-error :messages="$errors->get('salario')" class="mt-2" />
         </div>
 
