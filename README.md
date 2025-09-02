@@ -33,7 +33,8 @@ Foram criadas 5 tabelas principais para atender às funcionalidades do sistema:
 
 Essa modelagem foi pensada para garantir organização, segurança no acesso e controle detalhado das movimentações, atendendo aos requisitos do sistema de gerenciamento de livraria.
 
+# Etapa 2 - 05/09
 
-
+As tabelas usuario e funcionario não são mais utilizadas a partir daqui, elas ainda existem e estão com os dados solicitados na primeira etapa, MAS para continuação coesa do projeto, será utilizada a tabela de usuarios criada pelo Breeze, adaptadas junto às tabelas cargos e setores.
     
     
