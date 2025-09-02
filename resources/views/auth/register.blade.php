@@ -4,7 +4,7 @@
 
         <!-- Name -->
         <div>
-            <x-input-label for="name" :value="__('Name')" />
+            <x-input-label for="name" :value="__('Nome Completo')" />
             <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
             <x-input-error :messages="$errors->get('name')" class="mt-2" />
         </div>
@@ -16,9 +16,44 @@
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
+        <!-- Select de Cargo -->
+        <div class="mt-4">
+            <x-label for="cargo_id" :value="__('Cargo')" />
+            <select name="cargo_id" id="cargo_id" required class="block mt-1 w-full">
+                <option value="">-- Selecione o cargo --</option>
+                @foreach($cargos as $cargo)
+                    <option value="{{ $cargo->id }}" {{ old('cargo_id') == $cargo->id ? 'selected' : '' }}>
+                        {{ $cargo->nome }}
+                    </option>
+                @endforeach
+            </select>
+            <x-input-error :messages="$errors->get('cargo_id')" class="mt-2" />
+        </div>
+
+        <!-- Select de Setor -->
+        <div class="mt-4">
+            <x-label for="setor_id" :value="__('Setor')" />
+            <select name="setor_id" id="setor_id" required class="block mt-1 w-full">
+                <option value="">-- Selecione o setor --</option>
+                @foreach($setores as $setor)
+                    <option value="{{ $setor->id }}" {{ old('setor_id') == $setor->id ? 'selected' : '' }}>
+                        {{ $setor->nome }}
+                    </option>
+                @endforeach
+            </select>
+            <x-input-error :messages="$errors->get('setor_id')" class="mt-2" />
+        </div>
+
+        <!-- Campo de Salário -->
+        <div class="mt-4">
+            <x-label for="salario" :value="__('Salário')" />
+            <x-input id="salario" class="block mt-1 w-full" type="number" name="salario" value="{{ old('salario') }}" required step="0.01" />
+            <x-input-error :messages="$errors->get('salario')" class="mt-2" />
+        </div>
+
         <!-- Password -->
         <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+            <x-input-label for="password" :value="__('Senha')" />
 
             <x-text-input id="password" class="block mt-1 w-full"
                             type="password"
@@ -30,7 +65,7 @@
 
         <!-- Confirm Password -->
         <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+            <x-input-label for="password_confirmation" :value="__('Confirmação de Senha')" />
 
             <x-text-input id="password_confirmation" class="block mt-1 w-full"
                             type="password"
