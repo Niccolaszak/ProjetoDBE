@@ -7,7 +7,7 @@ use App\Http\Middleware\ForcarRedefinirSenha;
 use App\Http\Controllers\SenhaController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 Route::get('/hello-world', [HelloWorldController::class, 'exibirMensagem']);
