@@ -22,7 +22,9 @@ class User extends Authenticatable
         'email',
         'password',
         'cargo_id',
+        'cargo_nome',
         'setor_id',
+        'setor_nome',
         'salario',
     ];
 

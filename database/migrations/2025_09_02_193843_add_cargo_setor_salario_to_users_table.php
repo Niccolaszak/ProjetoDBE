@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->foreignId('cargo_id')->constrained('cargos');
+            $table->string('cargo_nome');
             $table->foreignId('setor_id')->constrained('setores');
+            $table->string('setor_nome');
             $table->decimal('salario', 10, 2);
         });
     }
@@ -25,8 +27,10 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropForeign(['cargo_id']);
+            $table->dropColumn(['cargo_id', 'cargo_nome']);
             $table->dropForeign(['setor_id']);
-            $table->dropColumn(['cargo_id', 'setor_id', 'salario']);
+            $table->dropColumn(['setor_id', 'setor_nome']);
+            $table->dropColumn(['salario']);
         });
     }
 };

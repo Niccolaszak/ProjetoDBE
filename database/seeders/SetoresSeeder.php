@@ -15,6 +15,12 @@ class SetoresSeeder extends Seeder
     {
         DB::table('setores')->insert([
             [
+                'nome' => 'Teste',
+                'descricao' => 'Setor teste de factory',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
                 'nome' => 'Tecnologia',
                 'descricao' => 'Responsável por toda a infraestrutura e desenvolvimento.',
                 'created_at' => now(),

@@ -15,20 +15,26 @@ class CargosSeeder extends Seeder
     {
         DB::table('cargos')->insert([
             [
-                'nome' => 'Desenvolvedor',
-                'descricao' => 'Responsável por desenvolver e manter aplicações.',
+                'nome' => 'Teste',
+                'descricao' => 'Cargo teste de factory',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
-                'nome' => 'Analista de Sistemas',
-                'descricao' => 'Analisa requisitos e sugere soluções tecnológicas.',
+                'nome' => 'Gerente',
+                'descricao' => 'Responsável por gerenciar um ou mais setores.',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
-                'nome' => 'Gerente de Projetos',
-                'descricao' => 'Coordena equipes e garante entrega de projetos.',
+                'nome' => 'Especialista',
+                'descricao' => 'Possui alto nível de conhecimento sobre o assunto.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'nome' => 'Analista',
+                'descricao' => 'Analisa e sugere soluções tecnológicas.',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

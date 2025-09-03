@@ -21,8 +21,11 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        $cargos = Cargo::all();
-        $setores = Setor::all();
+        $cargosParaExcluir = [1]; 
+        $setoresParaExcluir = [1];
+        $cargos = Cargo::whereNotIn('id', $cargosParaExcluir)->get();
+        $setores = Setor::whereNotIn('id', $setoresParaExcluir)->get();
+
         return view('auth.register', compact('cargos', 'setores'));
     }
 
@@ -47,7 +50,9 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'cargo_id' => $request->cargo_id,
+            'cargo_nome' => Cargo::find($request->cargo_id)->nome,
             'setor_id' => $request->setor_id,
+            'setor_nome' => Setor::find($request->setor_id)->nome,
             'salario' => $request->salario,
             'forcar_redefinir_senha' => true,
         ]);
