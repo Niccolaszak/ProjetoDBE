@@ -78,6 +78,10 @@
 
         <div class="flex items-center justify-end mt-4">
 
+            <x-secondary-button class="ms-4" onclick="window.location='{{ route('dashboard') }}'">
+                {{ __('Cancelar') }}
+            </x-secondary-button>
+
             <x-primary-button class="ms-4">
                 {{ __('Registrar') }}
             </x-primary-button>
