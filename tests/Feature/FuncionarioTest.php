@@ -2,19 +2,48 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 
 class FuncionarioTest extends TestCase
 {
-    /**
-     * A basic feature test example.
-     */
-    public function test_example(): void
+    use RefreshDatabase;
+
+    // ⚡ Aqui é onde colocamos o setUp
+    protected function setUp(): void
     {
-        $response = $this->get('/');
+        parent::setUp();
+
+        $this->seed();
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function usuario_com_permissao_pode_abrir_a_tela_de_registro()
+    {
+        $user = User::factory()->create([
+            'cargo_id' => 5,
+            'setor_id' => 5
+        ]);
+
+        $response = $this->actingAs($user)->get(route('register.create'));
 
         $response->assertStatus(200);
+        $response->assertSee('Registrar Funcionário');
     }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function usuario_sem_permissao_nao_pode_abrir_a_tela_de_registro()
+    {
+
+        $user = User::factory()->create([
+            'cargo_id' => 2, 
+            'setor_id' => 2
+        ]);
+
+        $response = $this->actingAs($user)->get(route('register.create'));
+        $response->assertStatus(403);
+    }
+
 }
