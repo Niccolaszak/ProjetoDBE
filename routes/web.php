@@ -5,9 +5,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HelloWorldController;
 use App\Http\Middleware\ForcarRedefinirSenha;
 use App\Http\Controllers\SenhaController;
+use App\Http\Controllers\PermissaoController;
+
 
 Route::get('/', function () {
-    return redirect()->route('login');
+    return view('welcome');
 });
 
 Route::get('/hello-world', [HelloWorldController::class, 'exibirMensagem']);
@@ -16,6 +18,10 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified', ForcarRedefinirSenha::class])
   ->name('dashboard');
+
+Route::middleware(['auth', 'check.permission'])->group(function () {
+    Route::resource('permissoes', PermissaoController::class)->except(['edit', 'update', 'show']);
+});
 
 Route::middleware(['auth', ForcarRedefinirSenha::class])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

@@ -1,7 +1,7 @@
 <x-guest-layout>
     <h2 class="text-2xl font-bold mb-6 text-center">Registrar Funcionário</h2>
 
-    <form method="POST" action="{{ route('register') }}">
+    <form method="POST" action="{{ route('register.store') }}">
         @csrf
 
         <!-- Name -->

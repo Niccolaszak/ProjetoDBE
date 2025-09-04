@@ -22,6 +22,8 @@ class DatabaseSeeder extends Seeder
             LivroSeeder::class,
             SetoresSeeder::class,
             CargosSeeder::class,
+            TelaSeeder::class,
+            AdminSeeder::class,
         ]);
         // User::factory(10)->create();
 

@@ -18,6 +18,15 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
+                @if (Route::has('register.create'))
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link :href="route('register.create')" 
+                                    :active="request()->routeIs('register.create')">
+                            {{ __('Registrar Funcionário') }}
+                        </x-nav-link>
+                    </div>
+                @endif
+
             </div>
 
             <!-- Settings Dropdown -->
@@ -83,7 +92,7 @@
 
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
+                    {{ __('Configurações de Perfil') }}
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->
@@ -93,7 +102,7 @@
                     <x-responsive-nav-link :href="route('logout')"
                             onclick="event.preventDefault();
                                         this.closest('form').submit();">
-                        {{ __('Log Out') }}
+                        {{ __('Sair') }}
                     </x-responsive-nav-link>
                 </form>
             </div>
