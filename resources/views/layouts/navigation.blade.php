@@ -18,7 +18,7 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
-                @if (Route::has('register.create'))
+                @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'register.create'))
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                         <x-nav-link :href="route('register.create')" 
                                     :active="request()->routeIs('register.create')">

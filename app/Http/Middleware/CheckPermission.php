@@ -3,26 +3,23 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
-
-use App\Models\Permissao;
-use App\Models\Tela;
+use App\Services\PermissaoService;
 
 class CheckPermission
 {
+    protected $permissaoService;
+
+    public function __construct(PermissaoService $permissaoService)
+    {
+        $this->permissaoService = $permissaoService;
+    }
+
     public function handle($request, Closure $next)
     {
-        $rotaAtual = $request->route()->getName(); // pega a rota
+        $rotaAtual = $request->route()->getName();
         $user = $request->user();
 
-        $permissao = Permissao::whereHas('tela', function($q) use ($rotaAtual) {
-            $q->where('rota', $rotaAtual);
-        })->where('cargo_id', $user->cargo_id)
-          ->where('setor_id', $user->setor_id)
-          ->first();
-
-        if (!$permissao) {
+        if (! $this->permissaoService->podeAcessarRota($user, $rotaAtual)) {
             abort(403, 'Acesso negado');
         }
 
