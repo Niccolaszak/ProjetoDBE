@@ -6,10 +6,15 @@ use App\Http\Controllers\HelloWorldController;
 use App\Http\Middleware\ForcarRedefinirSenha;
 use App\Http\Controllers\SenhaController;
 use App\Http\Controllers\PermissaoController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 
-Route::get('/', function () {
-    return view('welcome');
+Route::middleware('guest')->group(function () {
+    // Login será a página inicial
+    Route::get('/', [AuthenticatedSessionController::class, 'create'])
+        ->name('login');
+
+    Route::post('login', [AuthenticatedSessionController::class, 'store']);
 });
 
 Route::get('/hello-world', [HelloWorldController::class, 'exibirMensagem']);
