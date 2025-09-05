@@ -12,16 +12,31 @@ class PermissaoController extends Controller
 {
     public function index()
     {
-        $permissoes = Permissao::with(['tela', 'cargo', 'setor'])->get();
+        $permissoes = Permissao::with(['tela', 'cargo', 'setor'])
+            /*->whereHas('cargo', function($q) {
+                $q->where('nome', '!=', 'Admin');
+            })*/
+            ->get();
+
         return view('permissoes.index', compact('permissoes'));
     }
+
 
     public function create()
     {
         $telas = Tela::all();
         $cargos = Cargo::all();
         $setores = Setor::all();
-        return view('permissoes.create', compact('telas', 'cargos', 'setores'));
+
+        $cargosFiltrados = $cargos->filter(function($c) {
+            return $c->nome !== 'Admin' && $c->nome !== 'Teste'; 
+        });
+
+        $setoresFiltrados = $setores->filter(function($s) {
+            return $s->nome !== 'Admin' && $s->nome !== 'Teste';
+        });
+
+        return view('permissoes.create', compact('telas', 'cargosFiltrados', 'setoresFiltrados'));
     }
 
     public function store(Request $request)

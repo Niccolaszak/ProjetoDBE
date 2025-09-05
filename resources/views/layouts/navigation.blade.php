@@ -18,11 +18,11 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
-                @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'register.create'))
+                @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'painel'))
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                        <x-nav-link :href="route('register.create')" 
-                                    :active="request()->routeIs('register.create')">
-                            {{ __('Registrar Funcionário') }}
+                        <x-nav-link :href="route('painel')" 
+                                    :active="request()->routeIs('painel')">
+                            {{ __('Painel de Controle') }}
                         </x-nav-link>
                     </div>
                 @endif

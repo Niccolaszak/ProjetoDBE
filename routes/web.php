@@ -26,6 +26,9 @@ Route::get('/dashboard', function () {
 
 Route::middleware(['auth', 'check.permission'])->group(function () {
     Route::resource('permissoes', PermissaoController::class)->except(['edit', 'update', 'show']);
+    Route::get('/painel', function () {
+        return view('painelControle');
+    })->middleware(['auth', ForcarRedefinirSenha::class])->name('painel');
 });
 
 Route::middleware(['auth', ForcarRedefinirSenha::class])->group(function () {
