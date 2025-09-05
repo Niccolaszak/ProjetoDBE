@@ -34,9 +34,31 @@ Foram criadas 5 tabelas principais para atender às funcionalidades do sistema:
 Essa modelagem foi pensada para garantir organização, segurança no acesso e controle detalhado das movimentações, atendendo aos requisitos do sistema de gerenciamento de livraria.
 
 # Etapa 2 - 05/09
+### Endpoints CRUD com Eloquent ORM
+- Operações completas de **Create, Read, Update e Delete** implementadas para as principais entidades do projeto (ex: Livros, Cargos).
+- Todas as operações interagem com o **banco de dados MySQL** via **Models** e **Controllers**.
+- Implementação de relacionamentos entre Models:
+  - Um-para-um (ex: usuário ↔ cargo)
+  - Um-para-muitos (ex: cargo → funcionários, gênero → livros)
 
-As tabelas usuario e funcionario não são mais utilizadas a partir desta etapa; elas permanecem existentes, com os dados inseridos na primeira fase, mas, para a continuidade coesa do projeto, será adotada a tabela de usuários fornecida pelo Breeze, integrada às tabelas cargos e setores.
+### Sistema de Autenticação
+- Registro e login de usuários implementados utilizando **Laravel Breeze**.
+- Hash de senhas garantido para segurança.
+- Restrição de acesso a rotas e funcionalidades para **usuários autenticados** utilizando **Middlewares**.
+- Cadastro de funcionários feito por usuário autorizado; no primeiro login, o usuário é obrigado a redefinir a senha.
+- Campos adicionais (cargo, salário e setor) integrados ao registro de usuários.
+- Middleware `ForcarRedefinirSenha` implementado para garantir redefinição de senha no primeiro acesso.
+- `SenhaController` e view `senha-redefinir.blade.php` implementados usando componentes do Breeze.
 
-Como o projeto destina-se ao gerenciamento interno de uma livraria, os funcionários não possuem permissão para se autoregistrar. Dessa forma, o cadastro é realizado por um usuário autorizado da plataforma, e, no primeiro login, o funcionário é obrigado a redefinir sua senha. Para consolidar o registro como efetivamente funcional, foram adicionados os campos cargo, salário e setor ao formulário de registro e à base de dados. O RegisteredUserController foi ajustado para persistir essas informações e atribuir uma senha temporária, o middleware ForcarRedefinirSenha garante que o usuário seja redirecionado à página de redefinição de senha no primeiro acesso, e o SenhaController, juntamente com a view senha-redefinir.blade.php, foi implementado utilizando os componentes do Breeze, assegurando que, após a redefinição da senha, o usuário tenha acesso ao dashboard e às demais funcionalidades protegidas da plataforma.
-    
-    
+### Validação de Dados de Entrada
+- Todas as requisições CRUD possuem validação robusta utilizando as regras de validação do Laravel.
+- Garantia de consistência e segurança dos dados inseridos no sistema.
+
+### Testes Automatizados
+- Testes unitários implementados para classes e métodos simples (ex: validação de dados e funções auxiliares).
+- Cobertura básica de testes automatizados para assegurar o funcionamento dos endpoints e regras de negócio.
+
+## Observações
+- A modelagem da primeira etapa foi adaptada para integrar o sistema de autenticação do Breeze.
+- Usuários não podem se autoregistrar; apenas administradores podem criar contas de funcionários.
+- Após redefinição de senha, o usuário tem acesso ao **dashboard** e demais funcionalidades protegidas.
