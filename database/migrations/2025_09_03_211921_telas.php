@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('telas', function (Blueprint $table) {
             $table->id();
-            $table->string('nome'); // Ex: "Dashboard", "Cadastrar Livros"
-            $table->string('rota')->unique(); // Ex: "dashboard", "livros.create"
+            $table->string('nome');
+            $table->json('rotas');
             $table->timestamps();
         });
 

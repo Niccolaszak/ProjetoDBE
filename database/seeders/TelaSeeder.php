@@ -12,7 +12,10 @@ class TelaSeeder extends Seeder
         $telas = config('telas');
 
         foreach ($telas as $t) {
-            Tela::firstOrCreate($t);
+            Tela::firstOrCreate([
+                'nome' => $t['nome'],
+                'rotas' => $t['rotas'],
+            ]);
         }
     }
 }
