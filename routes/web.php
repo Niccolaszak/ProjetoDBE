@@ -6,8 +6,8 @@ use App\Http\Controllers\HelloWorldController;
 use App\Http\Middleware\ForcarRedefinirSenha;
 use App\Http\Controllers\SenhaController;
 use App\Http\Controllers\PermissaoController;
+use App\Http\Controllers\CargosController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-
 
 Route::middleware('guest')->group(function () {
     // Login será a página inicial
@@ -36,6 +36,9 @@ Route::middleware(['auth', ForcarRedefinirSenha::class])->group(function () {
     Route::middleware(['check.permission'])->group(function () {
 
         Route::resource('permissoes', PermissaoController::class)
+            ->except(['edit', 'update', 'show']);
+
+        Route::resource('cargos', CargosController::class)
             ->except(['edit', 'update', 'show']);
 
         Route::prefix('profile')->group(function () {
