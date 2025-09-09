@@ -13,31 +13,34 @@
                     <h3 class="text-lg font-semibold text-gray-700">Dashboard</h3>
                     <p class="mt-2 text-gray-500">Visão geral do sistema</p>
                 </a>
-
-                {{-- Permissões --}}
-                <a href="{{ route('permissoes.index') }}" class="block p-6 bg-white rounded-lg shadow hover:bg-gray-100 transition">
-                    <h3 class="text-lg font-semibold text-gray-700">Permissões</h3>
-                    <p class="mt-2 text-gray-500">Gerenciar permissões de usuários</p>
-                </a>
-
-                {{-- Cargos --}}
-                <a href="#" class="block p-6 bg-white rounded-lg shadow hover:bg-gray-100 transition">
-                    <h3 class="text-lg font-semibold text-gray-700">Cargos</h3>
-                    <p class="mt-2 text-gray-500">Gerenciar cargos da empresa</p>
-                </a>
-
-                {{-- Setores --}}
-                <a href="#" class="block p-6 bg-white rounded-lg shadow hover:bg-gray-100 transition">
-                    <h3 class="text-lg font-semibold text-gray-700">Setores</h3>
-                    <p class="mt-2 text-gray-500">Gerenciar setores</p>
-                </a>
-
-                {{-- Usuários --}}
-                <a href="#" class="block p-6 bg-white rounded-lg shadow hover:bg-gray-100 transition">
-                    <h3 class="text-lg font-semibold text-gray-700">Usuários</h3>
-                    <p class="mt-2 text-gray-500">Gerenciar usuários do sistema</p>
-                </a>
-
+                @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'permissoes.index'))
+                    {{-- Permissões --}}
+                    <a href="{{ route('permissoes.index') }}" class="block p-6 bg-white rounded-lg shadow hover:bg-gray-100 transition">
+                        <h3 class="text-lg font-semibold text-gray-700">Permissões</h3>
+                        <p class="mt-2 text-gray-500">Gerenciar relação de permissões</p>
+                    </a>
+                @endif
+                @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'cargos.index'))
+                    {{-- Cargos --}}
+                    <a href="#" class="block p-6 bg-white rounded-lg shadow hover:bg-gray-100 transition">
+                        <h3 class="text-lg font-semibold text-gray-700">Cargos</h3>
+                        <p class="mt-2 text-gray-500">Gerenciar cargos da empresa</p>
+                    </a>
+                @endif
+                @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'setores.index'))
+                    {{-- Setores --}}
+                    <a href="#" class="block p-6 bg-white rounded-lg shadow hover:bg-gray-100 transition">
+                        <h3 class="text-lg font-semibold text-gray-700">Setores</h3>
+                        <p class="mt-2 text-gray-500">Gerenciar setores</p>
+                    </a>
+                @endif
+                @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'usuarios.index'))
+                    {{-- Usuários --}}
+                    <a href="#" class="block p-6 bg-white rounded-lg shadow hover:bg-gray-100 transition">
+                        <h3 class="text-lg font-semibold text-gray-700">Usuários</h3>
+                        <p class="mt-2 text-gray-500">Gerenciar usuários do sistema</p>
+                    </a>
+                @endif
             </div>
         </div>
     </div>

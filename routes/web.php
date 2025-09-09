@@ -18,26 +18,29 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::get('/hello-world', [HelloWorldController::class, 'exibirMensagem']);
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified', ForcarRedefinirSenha::class])
-  ->name('dashboard');
-
-Route::middleware(['auth', 'check.permission'])->group(function () {
-    Route::resource('permissoes', PermissaoController::class)->except(['edit', 'update', 'show']);
-    Route::get('/painel', function () {
-        return view('painelControle');
-    })->middleware(['auth', ForcarRedefinirSenha::class])->name('painel');
-});
-
 Route::middleware(['auth', ForcarRedefinirSenha::class])->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
 
-Route::get('/senha/redefinir', [SenhaController::class, 'show'])->name('senha.redefinir');
-Route::post('/senha/redefinir', [SenhaController::class, 'update']);
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+
+    Route::middleware(['check.permission'])->group(function () {
+
+        Route::resource('permissoes', PermissaoController::class)
+            ->except(['edit', 'update', 'show']);
+
+        Route::get('/painel', fn() => view('painelControle'))->name('painel');
+
+        Route::prefix('profile')->group(function () {
+            Route::get('/', [ProfileController::class, 'index'])->name('profile.index');
+            Route::get('/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+            Route::patch('/', [ProfileController::class, 'update'])->name('profile.update');
+            Route::delete('/', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        });
+    });
+
+    Route::get('/senha/redefinir', [SenhaController::class, 'show'])->name('senha.redefinir');
+    Route::post('/senha/redefinir', [SenhaController::class, 'update']);
+});
 
 require __DIR__.'/auth.php';

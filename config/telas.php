@@ -10,20 +10,8 @@ return [
         'rotas' => ['permissoes.index']
     ],
     [
-        'nome' => 'Editar Perfil',
-        'rotas' => ['profile.update', 'profile.destroy']
-    ],
-    [
-        'nome' => 'Consultar Perfil',
-        'rotas' => ['profile.edit']
-    ],
-    [
-        'nome' => 'Editar Registro de Usuários',
-        'rotas' => ['register.store']
-    ],
-    [
-        'nome' => 'Consultar Registro de Usuários',
-        'rotas' => ['register.create']
+        'nome' => 'Registrar Usuários',
+        'rotas' => ['register.store', 'register.create']
     ],
     [
         'nome' => 'Consultar Dashboard',
@@ -34,27 +22,11 @@ return [
         'rotas' => ['painel']
     ],
     [
-        'nome' => 'Editar Senha',
-        'rotas' => ['senha.redefinir', 'senha.redefinir.update', 'password.update', 'password.store']
+        'nome' => 'Editar Perfil',
+        'rotas' => ['profile.edit', 'profile.update', 'profile.destroy']
     ],
     [
-        'nome' => 'Consultar Senha',
-        'rotas' => ['password.request', 'password.reset', 'password.email', 'verification.send', 'verification.notice', 'verification.verify', 'confirm-password', 'password.confirm']
-    ],
-    [
-        'nome' => 'Consultar Hello World',
-        'rotas' => ['hello-world']
-    ],
-    [
-        'nome' => 'Acesso Logout',
-        'rotas' => ['logout']
-    ],
-    [
-        'nome' => 'Acesso Storage',
-        'rotas' => ['storage.local']
-    ],
-    [
-        'nome' => 'Acesso Up',
-        'rotas' => ['up']
+        'nome' => 'Consultar Perfil',
+        'rotas' => ['profile.index']
     ],
 ];

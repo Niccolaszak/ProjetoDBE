@@ -4,9 +4,11 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Gerenciar Permissões
             </h2>
-            <x-primary-button onclick="window.location='{{ route('permissoes.create') }}'">
-                Nova Permissão
-            </x-primary-button>
+            @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'permissoes.create'))
+                <x-primary-button onclick="window.location='{{ route('permissoes.create') }}'">
+                    Nova Permissão
+                </x-primary-button>
+            @endif
         </div>
     </x-slot>
 
@@ -17,15 +19,15 @@
                 <tr>
                     <th class="px-4 py-2 text-left font-semibold text-gray-700 cursor-pointer" onclick="ordenarTabela(0)">
                         Tela ⬍ <br>
-                        <input type="text" onkeyup="filtrarTabela()" data-col="0" class="mt-1 p-1 border rounded w-full text-sm" placeholder="Filtrar tela...">
+                        <input id="filtro-tela" type="text" onkeyup="filtrarTabela()" data-col="0" class="mt-1 p-1 border rounded w-full text-sm" placeholder="Filtrar tela...">
                     </th>
                     <th class="px-4 py-2 text-left font-semibold text-gray-700 cursor-pointer" onclick="ordenarTabela(1)">
                         Cargo ⬍ <br>
-                        <input type="text" onkeyup="filtrarTabela()" data-col="1" class="mt-1 p-1 border rounded w-full text-sm" placeholder="Filtrar cargo...">
+                        <input id="filtro-cargo" type="text" onkeyup="filtrarTabela()" data-col="1" class="mt-1 p-1 border rounded w-full text-sm" placeholder="Filtrar cargo...">
                     </th>
-                    <th class="px-4 py-2 text-left font-semibold text-gray-700 cursor-pointer" onclick="ordenarTabela(2)">
+                    <th colspan="2" class="px-4 py-2 text-left font-semibold text-gray-700 cursor-pointer" onclick="ordenarTabela(2)">
                         Setor ⬍ <br>
-                        <input type="text" onkeyup="filtrarTabela()" data-col="2" class="mt-1 p-1 border rounded w-full text-sm" placeholder="Filtrar setor...">
+                        <input id="filtro-setor" type="text" onkeyup="filtrarTabela()" data-col="2" class="mt-1 p-1 border rounded w-full text-sm" placeholder="Filtrar setor...">
                     </th>
                 </tr>
             </thead>
