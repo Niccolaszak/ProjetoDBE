@@ -75,7 +75,7 @@
 
                 <!-- Botões -->
                 <div class="flex justify-between items-center mt-6">
-                    <x-secondary-button onclick="window.history.back()" type="button">
+                    <x-secondary-button onclick="window.location='{{ route('usuarios.index') }}'" type="button">
                         ← Voltar
                     </x-secondary-button>
 

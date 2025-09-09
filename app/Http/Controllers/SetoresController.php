@@ -22,7 +22,16 @@ class SetoresController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'nome' => ['required', 'string', 'max:100'],
+            'nome' => [
+                'required',
+                'string',
+                'max:100',
+                function ($attribute, $value, $fail) {
+                    if (\App\Models\Setor::where('nome', $value)->exists()) {
+                        $fail('Já existe um setor com esse nome.');
+                    }
+                },
+            ],
             'descricao' => ['nullable', 'string'],
         ]);
 
@@ -33,6 +42,7 @@ class SetoresController extends Controller
 
         return redirect()->route('setores.index')->with('success', 'Setor criado com sucesso!');
     }
+
 
     public function destroy(Setor $setor): RedirectResponse
     {

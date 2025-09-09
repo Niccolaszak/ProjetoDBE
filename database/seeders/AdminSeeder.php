@@ -14,11 +14,9 @@ class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Garante que exista um cargo e setor "Admin"
         $cargo = Cargo::firstOrCreate(['nome' => 'Admin'], ['descricao' => 'Administrador do sistema']);
         $setor = Setor::firstOrCreate(['nome' => 'Admin'], ['descricao' => 'Administrador do sistema']);
 
-        // 2. Cria usuário Admin padrão
         $admin = User::firstOrCreate(
             ['email' => 'admin@admin.com'],
             [
@@ -32,14 +30,7 @@ class AdminSeeder extends Seeder
                 'forcar_redefinir_senha' => false,
             ]
         );
-
-        $telas = config('telas');
-
-        foreach ($telas as $t) {
-            Tela::firstOrCreate($t);
-        }
-
-        // 4. Dá todas as permissões ao Admin
+        
         $todasTelas = Tela::all();
         foreach ($todasTelas as $tela) {
             Permissao::firstOrCreate([

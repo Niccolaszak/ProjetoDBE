@@ -44,7 +44,20 @@ class PermissaoController extends Controller
         $request->validate([
             'tela_id' => 'required|exists:telas,id',
             'cargo_id' => 'required|exists:cargos,id',
-            'setor_id' => 'required|exists:setores,id',
+            'setor_id' => [
+                'required',
+                'exists:setores,id',
+                function ($attribute, $value, $fail) use ($request) {
+                    $exists = \App\Models\Permissao::where('tela_id', $request->tela_id)
+                        ->where('cargo_id', $request->cargo_id)
+                        ->where('setor_id', $request->setor_id)
+                        ->exists();
+
+                    if ($exists) {
+                        $fail('Essa permissão já existe para esta tela, cargo e setor.');
+                    }
+                },
+            ],
         ]);
 
         Permissao::create($request->only('tela_id', 'cargo_id', 'setor_id'));
@@ -52,9 +65,13 @@ class PermissaoController extends Controller
         return redirect()->route('permissoes.index')->with('success', 'Permissão criada!');
     }
 
-    public function destroy(Permissao $permissao)
+
+    public function destroy($id)
     {
+        $permissao = Permissao::findOrFail($id);
         $permissao->delete();
-        return redirect()->route('permissoes.index')->with('success', 'Permissão removida!');
+
+        return redirect()->route('permissoes.index')
+                        ->with('success', 'Permissão excluída com sucesso!');
     }
 }

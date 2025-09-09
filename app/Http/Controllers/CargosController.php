@@ -21,7 +21,16 @@ class CargosController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'nome' => ['required', 'string', 'max:100'],
+            'nome' => [
+                'required',
+                'string',
+                'max:100',
+                function ($attribute, $value, $fail) {
+                    if (\App\Models\Cargo::where('nome', $value)->exists()) {
+                        $fail('Já existe um cargo com esse nome.');
+                    }
+                },
+            ],
             'descricao' => ['nullable', 'string'],
         ]);
 
