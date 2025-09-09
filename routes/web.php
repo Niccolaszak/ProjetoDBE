@@ -7,6 +7,7 @@ use App\Http\Middleware\ForcarRedefinirSenha;
 use App\Http\Controllers\SenhaController;
 use App\Http\Controllers\PermissaoController;
 use App\Http\Controllers\CargosController;
+use App\Http\Controllers\SetoresController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 Route::middleware('guest')->group(function () {
@@ -39,6 +40,9 @@ Route::middleware(['auth', ForcarRedefinirSenha::class])->group(function () {
             ->except(['edit', 'update', 'show']);
 
         Route::resource('cargos', CargosController::class)
+            ->except(['edit', 'update', 'show']);
+
+        Route::resource('setores', SetoresController::class)
             ->except(['edit', 'update', 'show']);
 
         Route::prefix('profile')->group(function () {

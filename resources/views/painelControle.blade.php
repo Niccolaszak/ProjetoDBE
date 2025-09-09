@@ -24,12 +24,12 @@
                     {{-- Cargos --}}
                     <a href="{{ route('cargos.index') }}" class="block p-6 bg-white rounded-lg shadow hover:bg-gray-100 transition">
                         <h3 class="text-lg font-semibold text-gray-700">Cargos</h3>
-                        <p class="mt-2 text-gray-500">Gerenciar cargos da empresa</p>
+                        <p class="mt-2 text-gray-500">Gerenciar cargos</p>
                     </a>
                 @endif
                 @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'setores.index'))
                     {{-- Setores --}}
-                    <a href="#" class="block p-6 bg-white rounded-lg shadow hover:bg-gray-100 transition">
+                    <a href="{{ route('setores.index') }}" class="block p-6 bg-white rounded-lg shadow hover:bg-gray-100 transition">
                         <h3 class="text-lg font-semibold text-gray-700">Setores</h3>
                         <p class="mt-2 text-gray-500">Gerenciar setores</p>
                     </a>

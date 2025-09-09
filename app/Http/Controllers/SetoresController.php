@@ -1,21 +1,22 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Cargo;
+
+use App\Models\Setor;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 
-class CargosController extends Controller
+class SetoresController extends Controller
 {
     public function index()
     {
-        $cargos = Cargo::all();
-        return view('cargos.index', compact('cargos'));
+        $setores = Setor::all();
+        return view('setores.index', compact('setores'));
     }
 
     public function create()
     {
-        return view('cargos.create');
+        return view('setores.create');
     }
 
     public function store(Request $request): RedirectResponse
@@ -25,19 +26,19 @@ class CargosController extends Controller
             'descricao' => ['nullable', 'string'],
         ]);
 
-        Cargo::create([
+        Setor::create([
             'nome' => $request->nome,
             'descricao' => $request->descricao,
         ]);
 
-        return redirect()->route('cargos.index')->with('success', 'Cargo criado com sucesso!');
+        return redirect()->route('setores.index')->with('success', 'Setor criado com sucesso!');
     }
 
-    public function destroy(Cargo $cargo): RedirectResponse
+    public function destroy(Setor $setor): RedirectResponse
     {
-        $cargo->delete();
+        $setor->delete();
 
-        return redirect()->route('cargos.index')->with('success', 'Cargo excluído com sucesso!');
+        return redirect()->route('setores.index')->with('success', 'Setor excluído com sucesso!');
     }
 
 }

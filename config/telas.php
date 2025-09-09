@@ -41,4 +41,12 @@ return [
         'nome' => 'Consultar Cargos',
         'rotas' => ['cargos.index']
     ],
+    [
+        'nome' => 'Editar Setores',
+        'rotas' => ['setores.create', 'setores.store', 'setores.destroy']
+    ],
+    [
+        'nome' => 'Consultar Setores',
+        'rotas' => ['setores.index']
+    ],
 ];
