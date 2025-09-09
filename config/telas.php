@@ -14,6 +14,10 @@ return [
         'rotas' => ['register.store', 'register.create']
     ],
     [
+        'nome' => 'Consultar Usuários',
+        'rotas' => ['usuarios.index']
+    ],
+    [
         'nome' => 'Consultar Dashboard',
         'rotas' => ['dashboard']
     ],

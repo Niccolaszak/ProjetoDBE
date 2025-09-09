@@ -16,6 +16,13 @@ use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
+    public function index()
+    {
+        $users = User::with(['cargo', 'setor'])->get();
+
+        return view('usuarios.index', compact('users'));
+    }
+    
     /**
      * Display the registration view.
      */
@@ -39,7 +46,6 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'cargo_id' => ['required', 'exists:cargos,id'],
             'setor_id' => ['required', 'exists:setores,id'],
             'salario' => ['required', 'numeric', 'min:0'],
@@ -48,7 +54,7 @@ class RegisteredUserController extends Controller
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => Hash::make('12345678'),
             'cargo_id' => $request->cargo_id,
             'cargo_nome' => Cargo::find($request->cargo_id)->nome,
             'setor_id' => $request->setor_id,
@@ -61,6 +67,6 @@ class RegisteredUserController extends Controller
 
         //Auth::login($user);
 
-        return redirect(route('register.create', absolute: false));
+        return redirect()->route('usuarios.index')->with('success', 'Usuário criado com sucesso!');
     }
 }

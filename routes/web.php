@@ -43,6 +43,9 @@ Route::middleware(['auth', ForcarRedefinirSenha::class])->group(function () {
             Route::patch('/', [ProfileController::class, 'update'])->name('profile.update');
             Route::delete('/', [ProfileController::class, 'destroy'])->name('profile.destroy');
         });
+        Route::get('/usuarios', [App\Http\Controllers\Auth\RegisteredUserController::class, 'index'])->name('usuarios.index');
+        Route::get('/register', [App\Http\Controllers\Auth\RegisteredUserController::class, 'create'])->name('register.create');
+        Route::post('/register', [App\Http\Controllers\Auth\RegisteredUserController::class, 'store'])->name('register.store');
     });
 });
 
