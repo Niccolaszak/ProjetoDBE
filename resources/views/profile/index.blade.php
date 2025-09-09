@@ -5,8 +5,8 @@
         </h2>
     </x-slot>
 
-    <div class="w-full min-h-screen bg-gray-50 py-6 px-6">
-        <div class="w-full bg-white shadow sm:rounded-lg p-8">
+    <div class="w-full min-h-screen bg-gray-50 py-6 px-6 space-y-6">
+        <div class="w-full bg-white shadow sm:rounded-lg p-8 ">
             <section>
                 <header>
                     <h2 class="text-lg font-medium text-gray-900">
@@ -51,13 +51,10 @@
                 </div>
             </section>
         </div>
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <div  class="flex justify-end mt-6 pr-6">
-                <x-primary-button :href="route('logout')" class="ms-4" onclick="event.preventDefault(); this.closest('form').submit();">
-                    {{ __('Sair') }}
-                </x-primary-button>
+        <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+            <div class="max-w-xl">
+                @include('profile.partials.update-password-form')
             </div>
-        </form>
+        </div>
     </div>
 </x-app-layout>

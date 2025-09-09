@@ -46,16 +46,14 @@
 
                     <x-slot name="content">
                         @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'profile.edit'))
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Configurações de Perfil') }}
-                        </x-dropdown-link>
+                            <x-dropdown-link :href="route('profile.edit')">
+                                {{ __('Configurações de Perfil') }}
+                            </x-dropdown-link>
+                        @else
+                            <x-dropdown-link :href="route('profile.index')">
+                                {{ __('Consultar Perfil') }}
+                            </x-dropdown-link>
                         @endif
-                        @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'profile.index'))
-                        <x-dropdown-link :href="route('profile.index')">
-                            {{ __('Consultar Perfil') }}
-                        </x-dropdown-link>
-                        @endif
-
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
