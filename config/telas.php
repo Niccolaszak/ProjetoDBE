@@ -7,7 +7,7 @@ return [
     ],
     [
         'nome' => 'Editar Permissões',
-        'rotas' => ['permissoes.create', 'permissoes.store', 'permissoes.destroy']
+        'rotas' => ['permissoes.create', 'permissoes.store', 'permissoes.destroy', 'permissoes.index']
     ],
     [
         'nome' => 'Consultar Permissões',
@@ -19,7 +19,7 @@ return [
     ],
     [
         'nome' => 'Registrar Usuários',
-        'rotas' => ['users.store', 'users.create']
+        'rotas' => ['users.store', 'users.create', 'users.index']
     ],
     [
         'nome' => 'Consultar Usuários',
@@ -35,7 +35,7 @@ return [
     ],
     [
         'nome' => 'Editar Cargos',
-        'rotas' => ['cargos.create', 'cargos.store', 'cargos.destroy']
+        'rotas' => ['cargos.create', 'cargos.store', 'cargos.destroy', 'cargos.index']
     ],
     [
         'nome' => 'Consultar Cargos',
@@ -43,10 +43,38 @@ return [
     ],
     [
         'nome' => 'Editar Setores',
-        'rotas' => ['setores.create', 'setores.store', 'setores.destroy']
+        'rotas' => ['setores.create', 'setores.store', 'setores.destroy', 'setores.index']
     ],
     [
         'nome' => 'Consultar Setores',
         'rotas' => ['setores.index']
+    ],
+    [
+        'nome' => 'Consultar Livros',
+        'rotas' => ['livros.index', 'livros.show']
+    ],
+    [
+        'nome' => 'Editar Livros',
+        'rotas' => ['livros.index', 'livros.create', 'livros.store', 'livros.edit', 'livros.update', 'livros.destroy', 'livros.show']
+    ],
+    [
+        'nome' => 'Consultar Generos',
+        'rotas' => ['generos.index']
+    ],
+    [
+        'nome' => 'Editar Generos',
+        'rotas' => ['generos.index', 'generos.create', 'generos.store', 'generos.destroy']
+    ],
+    [
+        'nome' => 'Consultar Movimentações',
+        'rotas' => ['movimentacoes.index']
+    ],
+    [
+        'nome' => 'Editar Movimentações',
+        'rotas' => ['movimentacoes.index', 'movimentacoes.create', 'movimentacoes.store', 'movimentacoes.destroy']
+    ],
+    [
+        'nome' => 'Consultar Estoque',
+        'rotas' => ['estoques.index', 'estoques.show']
     ],
 ];

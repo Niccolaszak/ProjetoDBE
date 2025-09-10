@@ -54,6 +54,12 @@ class SetoresController extends Controller
                 ->with('error', 'Não é possível excluir este setor, pois existem usuários vinculados a ele.');
         }
 
+        if ($setor->permissoes()->exists()) {
+            return redirect()
+                ->route('setores.index')
+                ->with('error', 'Não é possível excluir este setor, pois existem permissões vinculadas a ele.');
+        }
+
         $setor->delete();
 
         return redirect()

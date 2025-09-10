@@ -9,6 +9,10 @@ use App\Http\Controllers\PermissaoController;
 use App\Http\Controllers\CargosController;
 use App\Http\Controllers\SetoresController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\EstoqueController;
+use App\Http\Controllers\GeneroController;
+use App\Http\Controllers\LivroController;
+use App\Http\Controllers\MovimentacaoController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 Route::middleware('guest')->group(function () {
@@ -48,6 +52,17 @@ Route::middleware(['auth', ForcarRedefinirSenha::class])->group(function () {
 
         Route::resource('users', UserController::class)
             ->except(['edit','show']);
+
+        Route::resource('movimentacoes', MovimentacaoController::class)
+            ->except(['show','edit','update']);
+
+        Route::resource('estoques', EstoqueController::class)
+            ->except(['create','store','edit','update','destroy']);
+
+        Route::resource('livros', LivroController::class);
+
+        Route::resource('generos', GeneroController::class)
+            ->except(['show','edit','update']);
 
         Route::prefix('profile')->group(function () {
             Route::get('/edit', [ProfileController::class, 'edit'])->name('profile.edit');

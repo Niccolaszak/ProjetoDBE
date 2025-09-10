@@ -52,6 +52,12 @@ class CargosController extends Controller
                 ->with('error', 'Não é possível excluir este cargo, pois existem usuários vinculados a ele.');
         }
 
+        if ($cargo->permissoes()->exists()) {
+            return redirect()
+                ->route('cargos.index')
+                ->with('error', 'Não é possível excluir este cargo, pois existem permissões vinculadas a ele.');
+        }
+
         $cargo->delete();
 
         return redirect()
