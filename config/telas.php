@@ -15,7 +15,7 @@ return [
     ],
     [
         'nome' => 'Editar Usuários',
-        'rotas' => ['users.edit', 'users.update', 'users.destroy', 'users.index']
+        'rotas' => ['users.update', 'users.destroy', 'users.index']
     ],
     [
         'nome' => 'Registrar Usuários',

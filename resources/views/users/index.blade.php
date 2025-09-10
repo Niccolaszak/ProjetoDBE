@@ -28,7 +28,7 @@
                         Cargo ⬍ <br>
                         <input id="filtro-cargo" type="text" onkeyup="filtrarTabela()" data-col="1" class="mt-1 p-1 border rounded w-full text-sm" placeholder="Filtrar cargo...">
                     </th>
-                    <th colspan="2" class="px-4 py-2 text-left font-semibold text-gray-700 cursor-pointer" onclick="ordenarTabela(2)">
+                    <th colspan="3" class="px-4 py-2 text-left font-semibold text-gray-700 cursor-pointer" onclick="ordenarTabela(2)">
                         Setor ⬍ <br>
                         <input id="filtro-setor" type="text" onkeyup="filtrarTabela()" data-col="2" class="mt-1 p-1 border rounded w-full text-sm" placeholder="Filtrar setor...">
                     </th>
@@ -40,6 +40,102 @@
                         <td class="px-4 py-2">{{ $u->name }}</td>
                         <td class="px-4 py-2">{{ $u->cargo->nome }}</td>
                         <td class="px-4 py-2">{{ $u->setor->nome }}</td>
+                        <td>
+                            <!-- Botão Editar -->
+                            <x-secondary-button class="px-1 py-0.5 text-xs"
+                                x-data=""
+                                x-on:click.prevent="$dispatch('open-modal', 'confirm-usuario-edit-{{ $u->id }}')">
+                                Editar
+                            </x-secondary-button>
+
+                            <!-- Modal de Edição -->
+                            <x-modal name="confirm-usuario-edit-{{ $u->id }}" focusable>
+                                <div class="flex justify-center mt-6">
+                                    <div class="w-full max-w-2xl bg-white shadow-md rounded-lg p-6">
+                                        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                                            Editar Funcionário
+                                        </h2>
+                                        <form method="POST" action="{{ route('users.update', $u->id) }}" class="space-y-6">
+                                            @csrf
+                                            @method('PUT')
+                                            <!-- Nome -->
+                                            <div>
+                                                <x-input-label for="name" :value="__('Nome Completo')" />
+                                                <x-text-input id="name" class="block mt-1 w-full"
+                                                    type="text" name="name"
+                                                    :value="old('name', $u->name)" required autofocus autocomplete="name" />
+                                                <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                                            </div>
+
+                                            <!-- Email -->
+                                            <div>
+                                                <x-input-label for="email" :value="__('Email')" />
+                                                <x-text-input id="email" class="block mt-1 w-full"
+                                                    type="email" name="email"
+                                                    :value="old('email', $u->email)" required autocomplete="username" />
+                                                <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                                            </div>
+
+                                            <!-- Cargo -->
+                                            <div>
+                                                <x-input-label for="cargo_id" :value="__('Cargo')" />
+                                                <select name="cargo_id" id="cargo_id" required class="block mt-1 w-full rounded-md border-gray-300">
+                                                    <option value="">-- Selecione o cargo --</option>
+                                                    @foreach($cargosFiltrados as $cargo)
+                                                        <option value="{{ $cargo->id }}" {{ old('cargo_id', $u->cargo_id) == $cargo->id ? 'selected' : '' }}>
+                                                            {{ $cargo->nome }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                <x-input-error :messages="$errors->get('cargo_id')" class="mt-2" />
+                                            </div>
+
+                                            <!-- Setor -->
+                                            <div>
+                                                <x-input-label for="setor_id" :value="__('Setor')" />
+                                                <select name="setor_id" id="setor_id" required class="block mt-1 w-full rounded-md border-gray-300">
+                                                    <option value="">-- Selecione o setor --</option>
+                                                    @foreach($setoresFiltrados as $setor)
+                                                        <option value="{{ $setor->id }}" {{ old('setor_id', $u->setor_id) == $setor->id ? 'selected' : '' }}>
+                                                            {{ $setor->nome }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                <x-input-error :messages="$errors->get('setor_id')" class="mt-2" />
+                                            </div>
+
+                                            <!-- Salário -->
+                                            <div>
+                                                <x-input-label for="salario" :value="__('Salário')" />
+                                                <x-text-input id="salario" class="block mt-1 w-full"
+                                                    type="number" name="salario"
+                                                    :value="old('salario', $u->salario)" required step="0.01" />
+                                                <x-input-error :messages="$errors->get('salario')" class="mt-2" />
+                                            </div>
+
+                                            <!-- Aviso de senha -->
+                                            <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                                <p class="text-sm text-yellow-700">
+                                                    Somente o usuário pode alterar sua senha.
+                                                </p>
+                                            </div>
+
+                                            <!-- Botões -->
+                                            <div class="flex justify-between items-center mt-6">
+                                                <x-secondary-button @click="$dispatch('close')" type="button">
+                                                    ← Fechar
+                                                </x-secondary-button>
+
+                                                <x-primary-button type="submit">
+                                                    Salvar
+                                                </x-primary-button>
+                                            </div>
+
+                                        </form>
+                                    </div>
+                                </div>
+                            </x-modal>
+                        </td>
                         <td>
                             <x-secondary-button class="px-1 py-0.5 text-xs"
                                 x-data=""

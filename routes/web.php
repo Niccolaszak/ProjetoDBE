@@ -47,7 +47,7 @@ Route::middleware(['auth', ForcarRedefinirSenha::class])->group(function () {
             ->except(['edit', 'update', 'show']);
 
         Route::resource('users', UserController::class)
-            ->except(['show']);
+            ->except(['edit','show']);
 
         Route::prefix('profile')->group(function () {
             Route::get('/edit', [ProfileController::class, 'edit'])->name('profile.edit');

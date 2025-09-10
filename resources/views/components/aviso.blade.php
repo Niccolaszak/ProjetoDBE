@@ -7,7 +7,7 @@
 <div
     x-data="{ show: true }"
     x-show="show"
-    x-init="setTimeout(() => show = false, 4000)"
+    x-init="setTimeout(() => show = false, 1500)"
     x-transition
     class="fixed inset-0 flex items-center justify-center z-50"
 >

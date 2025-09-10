@@ -25,7 +25,18 @@ class UserController extends Controller
             })*/
         ->get();
 
-        return view('users.index', compact('users'));
+        $cargos = Cargo::all();
+        $setores = Setor::all();
+
+        $cargosFiltrados = $cargos->filter(function($c) {
+            return $c->nome !== 'Admin' && $c->nome !== 'Teste'; 
+        });
+
+        $setoresFiltrados = $setores->filter(function($s) {
+            return $s->nome !== 'Admin' && $s->nome !== 'Teste';
+        });
+
+        return view('users.index', compact('users', 'cargosFiltrados', 'setoresFiltrados'));
     }
 
     public function create(): View
@@ -66,19 +77,6 @@ class UserController extends Controller
 
         return redirect()->route('users.index')->with('success', 'Usuário criado com sucesso!');
     }
-
-    public function edit(string $id): View
-    {
-        $user = User::findOrFail($id);
-
-        $cargosParaExcluir = [1]; 
-        $setoresParaExcluir = [1];
-        $cargos = Cargo::whereNotIn('id', $cargosParaExcluir)->get();
-        $setores = Setor::whereNotIn('id', $setoresParaExcluir)->get();
-
-        return view('users.edit', compact('user', 'cargos', 'setores'));
-    }
-
 
     public function update(Request $request, string $id): RedirectResponse
     {
