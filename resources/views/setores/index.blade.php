@@ -17,7 +17,7 @@
 
 
     <div class="overflow-x-auto p-6">
-        <table class="w-full border border-gray-300 bg-white rounded-lg shadow-md" id="cargosTable">
+        <table class="w-full border border-gray-300 bg-white rounded-lg shadow-md" id="setoresTable">
             <thead class="bg-gray-100 border-b border-gray-300">
                 <tr>
                     <th class="px-4 py-2 text-left font-semibold text-gray-700 cursor-pointer" onclick="ordenarTabela(1)">
@@ -82,7 +82,7 @@
     <script>
 
         function filtrarTabela() {
-            const table = document.getElementById("cargosTable");
+            const table = document.getElementById("setoresTable");
             const rows = table.getElementsByTagName("tr");
             const inputs = table.querySelectorAll("thead input");
 
@@ -107,7 +107,7 @@
         let sortDirection = {}; 
 
         function ordenarTabela(colIndex) {
-            const table = document.getElementById("cargosTable");
+            const table = document.getElementById("setoresTable");
             const tbody = table.tBodies[0];
             const rows = Array.from(tbody.querySelectorAll("tr"));
 
