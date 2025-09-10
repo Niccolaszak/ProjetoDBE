@@ -43,11 +43,20 @@ class CargosController extends Controller
         return redirect()->route('cargos.index')->with('success', 'Cargo criado com sucesso!');
     }
 
-    public function destroy(Cargo $cargo): RedirectResponse
+    public function destroy($id): RedirectResponse
     {
+        $cargo = Cargo::findOrFail($id);
+        if ($cargo->users()->exists()) {
+            return redirect()
+                ->route('cargos.index')
+                ->with('error', 'Não é possível excluir este cargo, pois existem usuários vinculados a ele.');
+        }
+
         $cargo->delete();
 
-        return redirect()->route('cargos.index')->with('success', 'Cargo excluído com sucesso!');
+        return redirect()
+            ->route('cargos.index')
+            ->with('success', 'Cargo excluído com sucesso!');
     }
 
 }
