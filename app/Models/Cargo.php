@@ -12,4 +12,9 @@ class Cargo extends Model
     protected $table = 'cargos';
 
     protected $fillable = ['nome', 'descricao'];
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
 }

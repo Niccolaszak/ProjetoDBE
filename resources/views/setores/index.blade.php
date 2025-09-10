@@ -35,6 +35,39 @@
                     <tr class="border-b border-gray-200 hover:bg-gray-50">
                         <td class="px-4 py-2">{{ $setor->nome }}</td>
                         <td class="px-4 py-2">{{ $setor->descricao }}</td>
+                        <td>
+                            <x-secondary-button class="px-1 py-0.5 text-xs"
+                                x-data=""
+                                x-on:click.prevent="$dispatch('open-modal', 'confirm-setor-deletion-{{ $setor->id }}')"
+                            >
+                                Excluir
+                            </x-secondary-button>
+
+                            <x-modal name="confirm-setor-deletion-{{ $setor->id }}" focusable>
+                                <form method="POST" action="{{ route('setores.destroy', $setor->id) }}" class="p-6">
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <h2 class="text-lg font-medium text-gray-900">
+                                        Tem certeza que deseja excluir este setor?
+                                    </h2>
+
+                                    <p class="mt-1 text-sm text-gray-600">
+                                        Esta ação é permanente e não poderá ser desfeita.
+                                    </p>
+
+                                    <div class="mt-6 flex justify-end">
+                                        <x-secondary-button x-on:click="$dispatch('close')">
+                                            Cancelar
+                                        </x-secondary-button>
+
+                                        <x-danger-button class="ms-3">
+                                            Excluir
+                                        </x-danger-button>
+                                    </div>
+                                </form>
+                            </x-modal>
+                        </td>
                     </tr>
                 @endforeach
             </tbody>

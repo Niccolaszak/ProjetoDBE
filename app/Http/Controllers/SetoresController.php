@@ -45,11 +45,19 @@ class SetoresController extends Controller
     }
 
 
-    public function destroy(Setor $setor): RedirectResponse
+    public function destroy($id): RedirectResponse
     {
+        $setor = Setor::findOrFail($id);
+        if ($setor->users()->exists()) {
+            return redirect()
+                ->route('setores.index')
+                ->with('error', 'Não é possível excluir este setor, pois existem usuários vinculados a ele.');
+        }
+
         $setor->delete();
 
-        return redirect()->route('setores.index')->with('success', 'Setor excluído com sucesso!');
+        return redirect()
+            ->route('setores.index')
+            ->with('success', 'Setor excluído com sucesso!');
     }
-
 }

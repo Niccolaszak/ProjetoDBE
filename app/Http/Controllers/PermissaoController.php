@@ -88,6 +88,7 @@ class PermissaoController extends Controller
 
         return redirect()->route('permissoes.index')->with('success', 'Permissão criada!');
     }
+    
     public function destroy($id)
     {
         $permissao = Permissao::findOrFail($id);

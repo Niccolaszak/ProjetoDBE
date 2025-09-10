@@ -12,4 +12,9 @@ class Setor extends Model
     protected $table = 'setores';
 
     protected $fillable = ['nome', 'descricao'];
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
 }
