@@ -8,7 +8,7 @@
             <form action="{{ route('permissoes.store') }}" method="POST" class="space-y-6">
                 @csrf
 
-                <x-custom-select name="tela_id" :options="$telas" label="Tela" placeholder="Selecione a tela" />
+                <x-custom-select name="tela_id" :options="$telasFiltradas" label="Tela" placeholder="Selecione a tela" />
                 <x-custom-select name="cargo_id" :options="$cargosFiltrados" label="Cargo" placeholder="Selecione o cargo" />
                 <x-custom-select name="setor_id" :options="$setoresFiltrados" label="Setor" placeholder="Selecione o setor" />
 

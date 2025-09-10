@@ -10,6 +10,7 @@ class CargosController extends Controller
     public function index()
     {
         $cargos = Cargo::all();
+        //$cargos = Cargo::whereNotIn('nome', ['Admin', 'Teste'])->get();
         return view('cargos.index', compact('cargos'));
     }
 

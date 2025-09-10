@@ -11,6 +11,7 @@ class SetoresController extends Controller
     public function index()
     {
         $setores = Setor::all();
+        //$setores = Setor::whereNotIn('nome', ['Admin', 'Teste'])->get();
         return view('setores.index', compact('setores'));
     }
 

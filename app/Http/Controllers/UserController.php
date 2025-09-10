@@ -18,7 +18,12 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with(['cargo', 'setor'])->get();
+        $users = User::with(['cargo', 'setor'])
+        /*->whereHas('cargo', function($q) {
+                $q->where('nome', '!=', 'Admin');
+                $q->where('nome', '!=', 'Teste');
+            })*/
+        ->get();
 
         return view('users.index', compact('users'));
     }
@@ -107,6 +112,9 @@ class UserController extends Controller
         // Proteção: impedir que o admin delete a si mesmo
         if (auth()->id() === $user->id) {
             return redirect()->route('users.index')->with('error', 'Você não pode excluir sua própria conta.');
+        }
+        if ($user->email === "admin@admin.com") {
+            return redirect()->route('users.index')->with('error', 'Você não pode excluir o usuário admin.');
         }
 
         $user->delete();

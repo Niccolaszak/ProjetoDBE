@@ -36,7 +36,11 @@ class PermissaoController extends Controller
             return $s->nome !== 'Admin' && $s->nome !== 'Teste';
         });
 
-        return view('permissoes.create', compact('telas', 'cargosFiltrados', 'setoresFiltrados'));
+        $telasFiltradas = $telas->filter(function($t) {
+            return $t->nome !== 'Consultar Painel';
+        });
+
+        return view('permissoes.create', compact('telasFiltradas', 'cargosFiltrados', 'setoresFiltrados'));
     }
 
     public function store(Request $request)
@@ -62,10 +66,28 @@ class PermissaoController extends Controller
 
         Permissao::create($request->only('tela_id', 'cargo_id', 'setor_id'));
 
-        return redirect()->route('permissoes.index')->with('success', 'Permissão criada!');
+        $telasComExtras = [1];
+
+        if ($request->tela_id >= 2 && $request->tela_id <= 11) {
+        foreach ($telasComExtras as $telaExtraId) {
+            // Checa se já existe para não duplicar
+            $exists = \App\Models\Permissao::where('tela_id', $telaExtraId)
+                ->where('cargo_id', $request->cargo_id)
+                ->where('setor_id', $request->setor_id)
+                ->exists();
+
+            if (!$exists) {
+                Permissao::create([
+                    'tela_id' => $telaExtraId,
+                    'cargo_id' => $request->cargo_id,
+                    'setor_id' => $request->setor_id,
+                ]);
+            }
+        }
     }
 
-
+        return redirect()->route('permissoes.index')->with('success', 'Permissão criada!');
+    }
     public function destroy($id)
     {
         $permissao = Permissao::findOrFail($id);

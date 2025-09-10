@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
-use App\Models\User;
-
 class ProfileController extends Controller
 {
 
@@ -49,18 +47,21 @@ class ProfileController extends Controller
     /**
      * Delete the user's account.
      */
-    public function destroy(Request $request, $id): RedirectResponse
+    public function destroy(Request $request): RedirectResponse
     {
-        $user = User::findOrFail($id);
-        if ($request->user()->id === $user->id) {
-            return redirect()
-                ->back()
-                ->with('error', 'Você não pode excluir sua própria conta.');
-        }
+        $request->validateWithBag('userDeletion', [
+            'password' => ['required', 'current_password'],
+        ]);
+
+        $user = $request->user();
+
+        Auth::logout();
+
         $user->delete();
 
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'Usuário excluído com sucesso.');
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return Redirect::to('/');
     }
 }

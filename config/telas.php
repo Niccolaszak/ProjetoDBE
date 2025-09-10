@@ -2,10 +2,6 @@
 
 return [
     [
-        'nome' => 'Consultar Dashboard',
-        'rotas' => ['dashboard']
-    ],
-    [
         'nome' => 'Consultar Painel',
         'rotas' => ['painel']
     ],
