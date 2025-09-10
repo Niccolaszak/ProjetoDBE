@@ -20,7 +20,7 @@ class RegisteredUserController extends Controller
     {
         $users = User::with(['cargo', 'setor'])->get();
 
-        return view('usuarios.index', compact('users'));
+        return view('users.index', compact('users'));
     }
     
     /**
@@ -67,6 +67,6 @@ class RegisteredUserController extends Controller
 
         //Auth::login($user);
 
-        return redirect()->route('usuarios.index')->with('success', 'Usuário criado com sucesso!');
+        return redirect()->route('users.index')->with('success', 'Usuário criado com sucesso!');
     }
 }

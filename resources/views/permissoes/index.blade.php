@@ -1,3 +1,6 @@
+<x-aviso type="success" :message="session('success')" />
+<x-aviso type="error" :message="session('error')" />
+
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
@@ -38,12 +41,12 @@
                         <td class="px-4 py-2">{{ $p->cargo->nome }}</td>
                         <td class="px-4 py-2">{{ $p->setor->nome }}</td>
                         <td>
-                            <x-danger-button
+                            <x-secondary-button class="px-1 py-0.5 text-xs"
                                 x-data=""
                                 x-on:click.prevent="$dispatch('open-modal', 'confirm-permissao-deletion-{{ $p->id }}')"
                             >
                                 Excluir
-                            </x-danger-button>
+                            </x-secondary-button>
 
                             <x-modal name="confirm-permissao-deletion-{{ $p->id }}" focusable>
                                 <form method="POST" action="{{ route('permissoes.destroy', $p->id) }}" class="p-6">

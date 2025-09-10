@@ -19,7 +19,7 @@ class AcessoRegistroFuncionariosTest extends TestCase
     public function test_usuario_com_permissao_pode_acessar_rota()
     {
         $user = new User(['cargo_id' => 5, 'setor_id' => 5]);
-        $rota = 'register.create';
+        $rota = 'users.create';
 
         // Mock do Permissao::whereHas(...)->exists() para simular que existe permissão
         $mock = Mockery::mock('alias:App\Models\Permissao');
@@ -34,7 +34,7 @@ class AcessoRegistroFuncionariosTest extends TestCase
     public function test_usuario_sem_permissao_nao_pode_acessar_rota()
     {
         $user = new User(['cargo_id' => 2, 'setor_id' => 2]);
-        $rota = 'register.create';
+        $rota = 'users.create';
 
         $mock = Mockery::mock('alias:App\Models\Permissao');
         $mock->shouldReceive('whereHas->where->where->exists')

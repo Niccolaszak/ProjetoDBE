@@ -8,6 +8,7 @@ use App\Http\Controllers\SenhaController;
 use App\Http\Controllers\PermissaoController;
 use App\Http\Controllers\CargosController;
 use App\Http\Controllers\SetoresController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 Route::middleware('guest')->group(function () {
@@ -45,14 +46,14 @@ Route::middleware(['auth', ForcarRedefinirSenha::class])->group(function () {
         Route::resource('setores', SetoresController::class)
             ->except(['edit', 'update', 'show']);
 
+        Route::resource('users', UserController::class)
+            ->except(['show']);
+
         Route::prefix('profile')->group(function () {
             Route::get('/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-            Route::patch('/', [ProfileController::class, 'update'])->name('profile.update');
-            Route::delete('/', [ProfileController::class, 'destroy'])->name('profile.destroy');
+            Route::patch('/update', [ProfileController::class, 'update'])->name('profile.update');
+            Route::delete('/destroy', [ProfileController::class, 'destroy'])->name('profile.destroy');
         });
-        Route::get('/usuarios', [App\Http\Controllers\Auth\RegisteredUserController::class, 'index'])->name('usuarios.index');
-        Route::get('/register', [App\Http\Controllers\Auth\RegisteredUserController::class, 'create'])->name('register.create');
-        Route::post('/register', [App\Http\Controllers\Auth\RegisteredUserController::class, 'store'])->name('register.store');
     });
 });
 

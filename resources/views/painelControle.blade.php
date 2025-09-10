@@ -1,3 +1,6 @@
+<x-aviso type="success" :message="session('success')" />
+<x-aviso type="error" :message="session('error')" />
+
 {{-- resources/views/painel.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
@@ -34,9 +37,9 @@
                         <p class="mt-2 text-gray-500">Gerenciar setores</p>
                     </a>
                 @endif
-                @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'usuarios.index'))
+                @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'users.index'))
                     {{-- Usuários --}}
-                    <a href="{{ route('usuarios.index') }}" class="block p-6 bg-white rounded-lg shadow hover:bg-gray-100 transition">
+                    <a href="{{ route('users.index') }}" class="block p-6 bg-white rounded-lg shadow hover:bg-gray-100 transition">
                         <h3 class="text-lg font-semibold text-gray-700">Usuários</h3>
                         <p class="mt-2 text-gray-500">Gerenciar usuários do sistema</p>
                     </a>

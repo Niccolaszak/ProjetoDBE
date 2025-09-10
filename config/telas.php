@@ -18,12 +18,16 @@ return [
         'rotas' => ['permissoes.index']
     ],
     [
+        'nome' => 'Editar Usuários',
+        'rotas' => ['users.edit', 'users.update', 'users.destroy', 'users.index']
+    ],
+    [
         'nome' => 'Registrar Usuários',
-        'rotas' => ['register.store', 'register.create']
+        'rotas' => ['users.store', 'users.create']
     ],
     [
         'nome' => 'Consultar Usuários',
-        'rotas' => ['usuarios.index']
+        'rotas' => ['users.index']
     ],
     [
         'nome' => 'Editar Perfil',

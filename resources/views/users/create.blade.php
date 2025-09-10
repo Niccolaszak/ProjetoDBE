@@ -7,7 +7,7 @@
 
     <div class="flex justify-center mt-6">
         <div class="w-full max-w-2xl bg-white shadow-md rounded-lg p-6">
-            <form method="POST" action="{{ route('register.store') }}" class="space-y-6">
+            <form method="POST" action="{{ route('users.store') }}" class="space-y-6">
                 @csrf
 
                 <!-- Name -->
