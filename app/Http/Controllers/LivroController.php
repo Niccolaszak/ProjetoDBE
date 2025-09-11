@@ -14,9 +14,13 @@ class LivroController extends Controller
     public function index(): View
     {
         $livros  = Livro::with('genero')->get();
-        $generos = Genero::all();               
+        $generos = Genero::all();
+        $generosOptions = $generos->map(fn($g) => (object)[
+            'id' => $g->id,
+            'nome' => $g->genero
+        ]);               
 
-        return view('livros.index', compact('livros', 'generos'));
+        return view('livros.index', compact('livros', 'generosOptions'));
     }
 
     public function store(Request $request): RedirectResponse

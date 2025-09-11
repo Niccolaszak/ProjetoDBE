@@ -36,10 +36,12 @@
                         {{-- Gênero --}}
                         <div class="mt-4">
                             <x-input-label for="genero_id" :value="__('Gênero')" />
-                            <x-custom-select id="genero_id" name="genero_id" class="mt-1 block w-full border rounded">
-                                @foreach($generos as $genero)
-                                    <option value="{{ $genero->id }}">{{ $genero->genero }}</option>
-                                @endforeach
+                            <x-custom-select 
+                                id="genero_id" 
+                                name="genero_id" 
+                                :options="$generosOptions" 
+                                label="Gênero" 
+                                placeholder="Selecione o gênero">
                             </x-custom-select>
                             <x-input-error :messages="$errors->get('genero_id')" class="mt-2" />
                         </div>
@@ -132,14 +134,14 @@
                                             <!-- Gênero -->
                                             <div>
                                                 <x-input-label for="genero_id" :value="__('Gênero')" />
-                                                <x-custom-select name="genero_id" id="genero_id" required class="block mt-1 w-full rounded-md border-gray-300">
-                                                    <option value="">-- Selecione o gênero --</option>
-                                                    @foreach($generos as $genero)
-                                                        <option value="{{ $genero->id }}" {{ old('genero_id', $livro->genero_id) == $genero->id ? 'selected' : '' }}>
-                                                            {{ $genero->genero }}
-                                                        </option>
-                                                    @endforeach
+                                                <x-custom-select 
+                                                    id="genero_id" 
+                                                    name="genero_id" 
+                                                    :options="$generosOptions" 
+                                                    label="Gênero" 
+                                                    placeholder="Selecione o gênero">
                                                 </x-custom-select>
+                                                
                                                 <x-input-error :messages="$errors->get('genero_id')" class="mt-2" />
                                             </div>
 

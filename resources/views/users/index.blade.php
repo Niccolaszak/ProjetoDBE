@@ -40,29 +40,13 @@
 
                         <!-- Cargo -->
                         <div>
-                            <x-input-label for="cargo_id" :value="__('Cargo')" />
-                            <x-custom-select name="cargo_id" id="cargo_id" required class="block mt-1 w-full rounded-md border-gray-300">
-                                <option value="">-- Selecione o cargo --</option>
-                                @foreach($cargosFiltrados as $cargo)
-                                    <option value="{{ $cargo->id }}" {{ old('cargo_id') == $cargo->id ? 'selected' : '' }}>
-                                        {{ $cargo->nome }}
-                                    </option>
-                                @endforeach
-                            </x-custom-select>
+                            <x-custom-select name="cargo_id" :options="$cargosFiltrados" label="Cargo" placeholder="Selecione o cargo" />
                             <x-input-error :messages="$errors->get('cargo_id')" class="mt-2" />
                         </div>
 
                         <!-- Setor -->
                         <div>
-                            <x-input-label for="setor_id" :value="__('Setor')" />
-                            <x-custom-select name="setor_id" id="setor_id" required class="block mt-1 w-full rounded-md border-gray-300">
-                                <option value="">-- Selecione o setor --</option>
-                                @foreach($setoresFiltrados as $setor)
-                                    <option value="{{ $setor->id }}" {{ old('setor_id') == $setor->id ? 'selected' : '' }}>
-                                        {{ $setor->nome }}
-                                    </option>
-                                @endforeach
-                            </x-custom-select>
+                            <x-custom-select name="setor_id" :options="$setoresFiltrados" label="Setor" placeholder="Selecione o setor" />
                             <x-input-error :messages="$errors->get('setor_id')" class="mt-2" />
                         </div>
 
@@ -163,29 +147,13 @@
 
                                             <!-- Cargo -->
                                             <div>
-                                                <x-input-label for="cargo_id" :value="__('Cargo')" />
-                                                <x-custom-select name="cargo_id" id="cargo_id" required class="block mt-1 w-full rounded-md border-gray-300">
-                                                    <option value="">-- Selecione o cargo --</option>
-                                                    @foreach($cargosFiltrados as $cargo)
-                                                        <option value="{{ $cargo->id }}" {{ old('cargo_id', $u->cargo_id) == $cargo->id ? 'selected' : '' }}>
-                                                            {{ $cargo->nome }}
-                                                        </option>
-                                                    @endforeach
-                                                </x-custom-select>
+                                                <x-custom-select name="cargo_id" :options="$cargosFiltrados" label="Cargo" placeholder="Selecione o cargo" />
                                                 <x-input-error :messages="$errors->get('cargo_id')" class="mt-2" />
                                             </div>
 
                                             <!-- Setor -->
                                             <div>
-                                                <x-input-label for="setor_id" :value="__('Setor')" />
-                                                <x-custom-select name="setor_id" id="setor_id" required class="block mt-1 w-full rounded-md border-gray-300">
-                                                    <option value="">-- Selecione o setor --</option>
-                                                    @foreach($setoresFiltrados as $setor)
-                                                        <option value="{{ $setor->id }}" {{ old('setor_id', $u->setor_id) == $setor->id ? 'selected' : '' }}>
-                                                            {{ $setor->nome }}
-                                                        </option>
-                                                    @endforeach
-                                                </x-custom-select>
+                                                <x-custom-select name="setor_id" :options="$setoresFiltrados" label="Setor" placeholder="Selecione o setor" />
                                                 <x-input-error :messages="$errors->get('setor_id')" class="mt-2" />
                                             </div>
 
