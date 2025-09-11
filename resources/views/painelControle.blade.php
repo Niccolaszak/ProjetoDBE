@@ -43,28 +43,28 @@
                     {{-- Movimentações --}}
                     <a href="{{ route('movimentacoes.index') }}" class="block p-6 bg-white rounded-lg shadow hover:bg-gray-100 transition">
                         <h3 class="text-lg font-semibold text-gray-700">Movimentações</h3>
-                        <p class="mt-2 text-gray-500">Gerenciar movimentações do sistema</p>
+                        <p class="mt-2 text-gray-500">Gerenciar movimentações </p>
                     </a>
                 @endif
                 @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'estoques.index'))
                     {{-- Estoque --}}
                     <a href="{{ route('estoques.index') }}" class="block p-6 bg-white rounded-lg shadow hover:bg-gray-100 transition">
                         <h3 class="text-lg font-semibold text-gray-700">Estoque</h3>
-                        <p class="mt-2 text-gray-500">Gerenciar estoque do sistema</p>
+                        <p class="mt-2 text-gray-500">Consultar estoque </p>
                     </a>
                 @endif
                 @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'livros.index'))
                     {{-- Livros --}}
                     <a href="{{ route('livros.index') }}" class="block p-6 bg-white rounded-lg shadow hover:bg-gray-100 transition">
                         <h3 class="text-lg font-semibold text-gray-700">Livros</h3>
-                        <p class="mt-2 text-gray-500">Gerenciar livros do sistema</p>
+                        <p class="mt-2 text-gray-500">Gerenciar livros </p>
                     </a>
                 @endif
                 @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'generos.index'))
                     {{-- Generos --}}
                     <a href="{{ route('generos.index') }}" class="block p-6 bg-white rounded-lg shadow hover:bg-gray-100 transition">
                         <h3 class="text-lg font-semibold text-gray-700">Generos</h3>
-                        <p class="mt-2 text-gray-500">Gerenciar generos do sistema</p>
+                        <p class="mt-2 text-gray-500">Gerenciar generos </p>
                     </a>
                 @endif
             </div>

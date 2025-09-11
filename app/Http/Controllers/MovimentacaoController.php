@@ -13,7 +13,8 @@ class MovimentacaoController extends Controller
     public function index(): View
     {
         $movimentacoes = Movimentacao::with('livro')->get();
-        return view('movimentacoes.index', compact('movimentacoes'));
+        $livros = Livro::all();
+        return view('movimentacoes.index', compact('movimentacoes', 'livros'));
     }
 
     public function store(Request $request): RedirectResponse
