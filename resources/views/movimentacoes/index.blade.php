@@ -14,65 +14,122 @@
             </x-primary-button>
             <!-- Modal -->
             <x-modal name="nova-movimentacao" :show="false" focusable>
-                <form action="{{ route('movimentacoes.store') }}" method="POST" class="p-6 space-y-6">
-                    @csrf
+            <form action="{{ route('movimentacoes.store') }}" method="POST" class="p-6 space-y-6">
+                @csrf
 
-                    <h2 class="text-lg font-medium text-gray-900">
-                        Nova Movimentação
-                    </h2>
+                <h2 class="text-lg font-medium text-gray-900">
+                    Nova Movimentação
+                </h2>
 
-                    <!-- Seleção de Livro -->
-                    <div class="mt-4">
-                        <x-input-label for="livro_id" :value="__('Livro')" />
-                        <select id="livro_id" name="livro_id" required class="mt-1 block w-full border rounded">
-                            <option value="">-- Selecione o livro --</option>
-                            @foreach($livros as $livro)
-                                <option value="{{ $livro->id }}">{{ $livro->titulo }}</option>
-                            @endforeach
-                        </select>
-                        <x-input-error :messages="$errors->get('livro_id')" class="mt-2" />
+                <!-- Seleção de Livro -->
+                <div class="mt-4">
+                    <x-custom-select
+                        name="livro_id"
+                        :options="$livrosOptions"
+                        label="Livro"
+                        placeholder="-- Selecione o livro --"
+                    />
+                    <x-input-error :messages="$errors->get('livro_id')" class="mt-2" />
+                </div>
+
+                <!-- Quantidade -->
+                <div class="mt-4">
+                    <x-input-label for="quantidade" :value="__('Quantidade')" />
+                    <x-text-input id="quantidade" name="quantidade" type="number" min="1" class="mt-1 block w-full" required />
+                    <x-input-error :messages="$errors->get('quantidade')" class="mt-2" />
+                </div>
+
+                <!-- Tipo (Entrada/Saída) -->
+                <div class="mt-4">
+                    <x-custom-select
+                        name="tipo"
+                        :options="collect([
+                            (object)['id' => 'entrada', 'nome' => 'Entrada'],
+                            (object)['id' => 'saida', 'nome' => 'Saída']
+                        ])"
+                        label="Tipo de Movimentação"
+                        placeholder="-- Selecione o tipo --"
+                    />
+                    <x-input-error :messages="$errors->get('tipo')" class="mt-2" />
+                </div>
+
+                <!-- Tipo de Relacionamento -->
+                <div x-data="{ tipoRelacionamento: '{{ old('tipo_relacionamento') ?? '' }}' }"
+                    @input.window="if($event.detail.name === 'tipo_relacionamento') tipoRelacionamento = $event.detail.value">
+
+                    <x-custom-select
+                        name="tipo_relacionamento"
+                        :options="collect([
+                            (object)['id' => 'fornecedor', 'nome' => 'Fornecedor'],
+                            (object)['id' => 'cliente', 'nome' => 'Cliente']
+                        ])"
+                        label="Tipo de Relacionamento"
+                        placeholder="-- Selecione --"
+                    />
+                    <x-input-error :messages="$errors->get('tipo_relacionamento')" class="mt-2" />
+
+                    <!-- Fornecedor -->
+                    <div x-show="tipoRelacionamento === 'fornecedor'" class="mt-4">
+                        <x-custom-select
+                            name="relacionamento_id"
+                            :options="$fornecedoresOptions"
+                            label="Fornecedor"
+                            placeholder="-- Selecione o fornecedor --"
+                        />
+                        <x-input-error :messages="$errors->get('relacionamento_id')" class="mt-2" />
                     </div>
 
-                    <!-- Quantidade -->
-                    <div class="mt-4">
-                        <x-input-label for="quantidade" :value="__('Quantidade')" />
-                        <x-text-input id="quantidade" name="quantidade" type="number" min="1" class="mt-1 block w-full" required />
-                        <x-input-error :messages="$errors->get('quantidade')" class="mt-2" />
+                    <!-- Cliente -->
+                    <div x-show="tipoRelacionamento === 'cliente'" class="space-y-2 mt-4">
+                        <x-input-label for="nome_contato" :value="'Nome do Cliente'" />
+                        <x-text-input
+                            id="nome_contato"
+                            name="nome_contato"
+                            type="text"
+                            x-bind:required="tipoRelacionamento === 'cliente'"
+                            x-bind:disabled="tipoRelacionamento !== 'cliente'"
+                            class="mt-1 block w-full"
+                            value="{{ old('nome_contato') }}"
+                        />
+                        <x-input-error :messages="$errors->get('nome_contato')" class="mt-2" />
+
+                        <x-input-label for="telefone_contato" :value="'Telefone do Cliente'" />
+                        <x-text-input
+                            id="telefone_contato"
+                            name="telefone_contato"
+                            type="text"
+                            x-bind:required="tipoRelacionamento === 'cliente'"
+                            x-bind:disabled="tipoRelacionamento !== 'cliente'"
+                            class="mt-1 block w-full"
+                            value="{{ old('telefone_contato') }}"
+                        />
+                        <x-input-error :messages="$errors->get('telefone_contato')" class="mt-2" />
                     </div>
+                </div>
 
-                    <!-- Tipo (Entrada/Saída) -->
-                    <div class="mt-4">
-                        <x-input-label for="tipo" :value="__('Tipo')" />
-                        <select id="tipo" name="tipo" required class="mt-1 block w-full border rounded">
-                            <option value="">-- Selecione o tipo --</option>
-                            <option value="entrada">Entrada</option>
-                            <option value="saida">Saída</option>
-                        </select>
-                        <x-input-error :messages="$errors->get('tipo')" class="mt-2" />
-                    </div>
+                <!-- Campo oculto do responsável -->
+                <input type="hidden" name="responsavel" value="{{ auth()->user()->id }}" />
 
-                    <!-- Campo oculto do responsável -->
-                    <input type="hidden" name="responsavel" value="{{ auth()->user()->id }}" />
+                <!-- Observação -->
+                <div class="mt-4">
+                    <x-input-label for="observacao" :value="__('Observação')" />
+                    <x-text-area id="observacao" name="observacao" rows="3" class="mt-1 block w-full">{{ old('observacao') }}</x-text-area>
+                    <x-input-error :messages="$errors->get('observacao')" class="mt-2" />
+                </div>
 
-                    <!-- Observação -->
-                    <div class="mt-4">
-                        <x-input-label for="observacao" :value="__('Observação')" />
-                        <x-text-area id="observacao" name="observacao" rows="3" class="mt-1 block w-full" />
-                        <x-input-error :messages="$errors->get('observacao')" class="mt-2" />
-                    </div>
+                <!-- Botões -->
+                <div class="flex justify-end gap-4 mt-6">
+                    <x-secondary-button x-on:click="$dispatch('close')" type="button">
+                        Cancelar
+                    </x-secondary-button>
 
-                    <!-- Botões -->
-                    <div class="flex justify-end gap-4 mt-6">
-                        <x-secondary-button x-on:click="$dispatch('close')" type="button">
-                            Cancelar
-                        </x-secondary-button>
+                    <x-primary-button type="submit">
+                        Salvar
+                    </x-primary-button>
+                </div>
+            </form>
+        </x-modal>
 
-                        <x-primary-button type="submit">
-                            Salvar
-                        </x-primary-button>
-                    </div>
-                </form>
-            </x-modal>
             @endif
         </div>
     </x-slot>
@@ -109,7 +166,7 @@
                         <td class="px-4 py-2">{{ $mov->livro->titulo }}</td>
                         <td class="px-4 py-2">{{ ucfirst($mov->tipo) }}</td>
                         <td class="px-4 py-2">{{ $mov->quantidade }}</td>
-                        <td class="px-4 py-2">{{ $mov->responsavel }}</td>
+                        <td class="px-4 py-2">{{ $mov->user->name ?? 'Desconhecido' }}</td>
                         @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'movimentacoes.store'))
                         <td>
                             <x-secondary-button class="px-1 py-0.5 text-xs"
@@ -145,43 +202,37 @@
                             </x-modal>
                         </td>
                         @endif
+                        <x-modal name="confirm-movimentacao-deletion-{{ $mov->id }}" focusable>
+                            <form method="POST" action="{{ route('movimentacoes.destroy', $mov->id) }}" class="p-6">
+                                @csrf
+                                @method('DELETE')
 
-                        <x-modal name="show-mov-{{ $mov->id }}" focusable>
-                            <div class="p-6">
-                                <h2 class="text-lg font-semibold text-gray-800 mb-4">
-                                    Detalhes da Movimentação e do Livro
+                                <h2 class="text-lg font-medium text-gray-900">
+                                    Tem certeza que deseja excluir esta movimentação?
                                 </h2>
 
-                                <div class="space-y-3">
-                                    <!-- Dados do Livro -->
-                                    <p><strong>Título:</strong> {{ $mov->livro->titulo }}</p>
-                                    <p><strong>Autor:</strong> {{ $mov->livro->autor }}</p>
-                                    <p><strong>Gênero:</strong> {{ $mov->livro->genero->genero }}</p>
-                                    <p><strong>Descrição do Livro:</strong> {{ $mov->livro->descricao_livro }}</p>
+                                <p class="mt-1 text-sm text-gray-600">
+                                    Esta ação é permanente e não poderá ser desfeita.
+                                </p>
 
-                                    <!-- Dados da Movimentação -->
-                                    <p><strong>Tipo:</strong> {{ ucfirst($mov->tipo) }}</p>
-                                    <p><strong>Quantidade:</strong> {{ $mov->quantidade }}</p>
-                                    <p><strong>Responsável:</strong> {{ $mov->responsavel }}</p>
-                                    <p><strong>Observação:</strong> {{ $mov->observacao ?? '-' }}</p>
-                                    <p><strong>Data/Hora:</strong> {{ $mov->created_at->format('d/m/Y H:i') }}</p>
-                                </div>
-
-                                <div class="mt-6 flex justify-end">
-                                    <x-secondary-button x-on:click="$dispatch('close')">
-                                        Fechar
+                                <div class="mt-6 flex justify-end gap-3">
+                                    <x-secondary-button type="button" x-on:click="$dispatch('close')">
+                                        Cancelar
                                     </x-secondary-button>
-                                </div>
-                            </div>
-                        </x-modal>
 
+                                    <x-danger-button type="submit">
+                                        Excluir
+                                    </x-danger-button>
+                                </div>
+                            </form>
+                        </x-modal>
                     </tr>
                 @endforeach
             </tbody>
         </table>
 
         <div class="flex justify-end mt-6 pr-6">
-            <x-primary-button class="ms-4" onclick="window.location='{{ route('painel') }}'">
+            <x-primary-button  x-data="" class="ms-4" x-on:click="window.location.href='{{ route('painel') }}'">
                 {{ __('Voltar') }}
             </x-primary-button>
         </div>

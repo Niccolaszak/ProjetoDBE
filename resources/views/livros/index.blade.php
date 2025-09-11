@@ -133,15 +133,13 @@
 
                                             <!-- Gênero -->
                                             <div>
-                                                <x-input-label for="genero_id" :value="__('Gênero')" />
-                                                <x-custom-select 
-                                                    id="genero_id" 
-                                                    name="genero_id" 
-                                                    :options="$generosOptions" 
-                                                    label="Gênero" 
-                                                    placeholder="Selecione o gênero">
-                                                </x-custom-select>
-                                                
+                                                <x-custom-select
+                                                    name="genero_id"
+                                                    :options="$generosOptions"
+                                                    :label="'Gênero'"
+                                                    :placeholder="'-- Selecione o gênero --'"
+                                                    :selected="old('genero_id', $livro->genero_id)"
+                                                />                                                
                                                 <x-input-error :messages="$errors->get('genero_id')" class="mt-2" />
                                             </div>
 
@@ -227,7 +225,7 @@
             </tbody>
         </table>
         <div  class="flex justify-end mt-6 pr-6">
-            <x-primary-button class="ms-4" onclick="window.location='{{ route('painel') }}'">
+            <x-primary-button x-data="" class="ms-4" x-on:click="window.location.href='{{ route('painel') }}'">
                 {{ __('Voltar') }}
             </x-primary-button>
         </div>

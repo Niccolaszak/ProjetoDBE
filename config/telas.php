@@ -77,4 +77,12 @@ return [
         'nome' => 'Consultar Estoque',
         'rotas' => ['estoques.index', 'estoques.show']
     ],
+    [
+        'nome' => 'Editar Fornecedores',
+        'rotas' => ['fornecedores.index', 'fornecedores.store', 'fornecedores.destroy']
+    ],
+    [
+        'nome' => 'Consultar Fornecedores',
+        'rotas' => ['fornecedores.index']
+    ],
 ];
