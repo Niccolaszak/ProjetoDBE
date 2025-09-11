@@ -39,16 +39,6 @@ class UserController extends Controller
         return view('users.index', compact('users', 'cargosFiltrados', 'setoresFiltrados'));
     }
 
-    public function create(): View
-    {
-        $cargosParaExcluir = [1]; 
-        $setoresParaExcluir = [1];
-        $cargos = Cargo::whereNotIn('id', $cargosParaExcluir)->get();
-        $setores = Setor::whereNotIn('id', $setoresParaExcluir)->get();
-
-        return view('users.create', compact('cargos', 'setores'));
-    }
-
     public function store(Request $request): RedirectResponse
     {
         $request->validate([

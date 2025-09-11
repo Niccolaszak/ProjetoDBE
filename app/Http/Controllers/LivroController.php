@@ -19,12 +19,6 @@ class LivroController extends Controller
         return view('livros.index', compact('livros', 'generos'));
     }
 
-    public function create(): View
-    {
-        $generos = Genero::all();
-        return view('livros.create', compact('generos'));
-    }
-
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
@@ -37,20 +31,6 @@ class LivroController extends Controller
         Livro::create($request->only('titulo','autor','genero_id','descricao_livro'));
 
         return redirect()->route('livros.index')->with('success', 'Livro criado com sucesso!');
-    }
-
-    public function edit(Livro $livro): View
-    {
-        $generos = Genero::all();
-        return view('livros.edit', compact('livro', 'generos'));
-    }
-
-    public function show(Livro $livro): View
-    {
-        // Carrega o gênero e movimentações relacionadas ao livro
-        $livro->load(['genero', 'movimentacoes']);
-
-        return view('livros.show', compact('livro'));
     }
 
     public function update(Request $request, Livro $livro): RedirectResponse

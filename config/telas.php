@@ -7,7 +7,7 @@ return [
     ],
     [
         'nome' => 'Editar Permissões',
-        'rotas' => ['permissoes.create', 'permissoes.store', 'permissoes.destroy', 'permissoes.index']
+        'rotas' => ['permissoes.store', 'permissoes.destroy', 'permissoes.index']
     ],
     [
         'nome' => 'Consultar Permissões',
@@ -19,7 +19,7 @@ return [
     ],
     [
         'nome' => 'Registrar Usuários',
-        'rotas' => ['users.store', 'users.create', 'users.index']
+        'rotas' => ['users.store', 'users.index']
     ],
     [
         'nome' => 'Consultar Usuários',
@@ -35,7 +35,7 @@ return [
     ],
     [
         'nome' => 'Editar Cargos',
-        'rotas' => ['cargos.create', 'cargos.store', 'cargos.destroy', 'cargos.index']
+        'rotas' => ['cargos.store', 'cargos.destroy', 'cargos.index']
     ],
     [
         'nome' => 'Consultar Cargos',
@@ -43,7 +43,7 @@ return [
     ],
     [
         'nome' => 'Editar Setores',
-        'rotas' => ['setores.create', 'setores.store', 'setores.destroy', 'setores.index']
+        'rotas' => ['setores.store', 'setores.destroy', 'setores.index']
     ],
     [
         'nome' => 'Consultar Setores',
@@ -51,11 +51,11 @@ return [
     ],
     [
         'nome' => 'Consultar Livros',
-        'rotas' => ['livros.index', 'livros.show']
+        'rotas' => ['livros.index']
     ],
     [
         'nome' => 'Editar Livros',
-        'rotas' => ['livros.index', 'livros.create', 'livros.store', 'livros.edit', 'livros.update', 'livros.destroy', 'livros.show']
+        'rotas' => ['livros.index', 'livros.store', 'livros.update', 'livros.destroy']
     ],
     [
         'nome' => 'Consultar Generos',
@@ -71,7 +71,7 @@ return [
     ],
     [
         'nome' => 'Editar Movimentações',
-        'rotas' => ['movimentacoes.index', 'movimentacoes.create', 'movimentacoes.store', 'movimentacoes.destroy']
+        'rotas' => ['movimentacoes.index', 'movimentacoes.store', 'movimentacoes.destroy']
     ],
     [
         'nome' => 'Consultar Estoque',

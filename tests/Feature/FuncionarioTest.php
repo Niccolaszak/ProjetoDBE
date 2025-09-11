@@ -27,7 +27,7 @@ class FuncionarioTest extends TestCase
             'setor_id' => 5
         ]);
 
-        $response = $this->actingAs($user)->get(route('users.create'));
+        $response = $this->actingAs($user)->get(route('users.store'));
 
         $response->assertStatus(200);
         $response->assertSee('Registrar Funcionário');
@@ -42,7 +42,7 @@ class FuncionarioTest extends TestCase
             'setor_id' => 2
         ]);
 
-        $response = $this->actingAs($user)->get(route('users.create'));
+        $response = $this->actingAs($user)->get(route('users.store'));
         $response->assertStatus(403);
     }
 

@@ -16,12 +16,6 @@ class MovimentacaoController extends Controller
         return view('movimentacoes.index', compact('movimentacoes'));
     }
 
-    public function create(): View
-    {
-        $livros = Livro::all();
-        return view('movimentacoes.create', compact('livros'));
-    }
-
     public function store(Request $request): RedirectResponse
     {
         $request->validate([

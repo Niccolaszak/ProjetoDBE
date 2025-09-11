@@ -7,10 +7,39 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Gerenciar Permissões
             </h2>
-            @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'permissoes.create'))
-                <x-primary-button onclick="window.location='{{ route('permissoes.create') }}'">
+            @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'permissoes.store'))
+                <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'nova-permissao')">
                     Nova Permissão
                 </x-primary-button>
+                <x-modal name="nova-permissao" :show="false" focusable>
+                    <form action="{{ route('permissoes.store') }}" method="POST" class="p-6 space-y-6">
+                        @csrf
+
+                        <h2 class="text-lg font-medium text-gray-900">
+                            Nova Permissão
+                        </h2>
+
+                        <!-- Tela -->
+                        <x-custom-select name="tela_id" :options="$telasFiltradas" label="Tela" placeholder="Selecione a tela" />
+
+                        <!-- Cargo -->
+                        <x-custom-select name="cargo_id" :options="$cargosFiltrados" label="Cargo" placeholder="Selecione o cargo" />
+
+                        <!-- Setor -->
+                        <x-custom-select name="setor_id" :options="$setoresFiltrados" label="Setor" placeholder="Selecione o setor" />
+
+                        <!-- Botões -->
+                        <div class="flex justify-end gap-4 mt-4">
+                            <x-secondary-button x-on:click="$dispatch('close')" type="button">
+                                Cancelar
+                            </x-secondary-button>
+
+                            <x-primary-button type="submit">
+                                Salvar
+                            </x-primary-button>
+                        </div>
+                    </form>
+                </x-modal>
             @endif
         </div>
     </x-slot>
@@ -40,6 +69,7 @@
                         <td class="px-4 py-2">{{ $p->tela->nome }}</td>
                         <td class="px-4 py-2">{{ $p->cargo->nome }}</td>
                         <td class="px-4 py-2">{{ $p->setor->nome }}</td>
+                        @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'permissoes.store'))
                         <td>
                             <x-secondary-button class="px-1 py-0.5 text-xs"
                                 x-data=""
@@ -73,6 +103,7 @@
                                 </form>
                             </x-modal>
                         </td>
+                        @endif
                     </tr>
                 @endforeach
             </tbody>
@@ -131,6 +162,31 @@
 
             rows.forEach(row => tbody.appendChild(row));
         }
+
+        const button = document.getElementById('dropdownButton');
+        const menu = document.getElementById('dropdownMenu');
+        const hiddenInput = document.getElementById('tela_id_hidden');
+
+        // Abrir/fechar dropdown
+        button.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+
+        // Selecionar opção
+        menu.querySelectorAll('li').forEach(item => {
+            item.addEventListener('click', () => {
+                button.firstChild.textContent = item.textContent;
+                hiddenInput.value = item.dataset.value;
+                menu.classList.add('hidden');
+            });
+        });
+
+        // Fechar dropdown se clicar fora
+        document.addEventListener('click', (e) => {
+            if (!button.contains(e.target) && !menu.contains(e.target)) {
+                menu.classList.add('hidden');
+            }
+        });
     </script>
 
 </x-app-layout>

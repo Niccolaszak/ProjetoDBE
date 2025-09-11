@@ -8,9 +8,93 @@
                 Gerenciar Usuários
             </h2>
             @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'users.store'))
-                <x-primary-button onclick="window.location='{{ route('users.create') }}'">
+                <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'novo-usuario')">
                     Novo Usuário
                 </x-primary-button>
+
+                <x-modal name="novo-usuario" :show="false" focusable>
+                    <form method="POST" action="{{ route('users.store') }}" class="p-6 space-y-6">
+                        @csrf
+
+                        <h2 class="text-lg font-medium text-gray-900">
+                            Registrar Funcionário
+                        </h2>
+
+                        <!-- Nome Completo -->
+                        <div>
+                            <x-input-label for="name" :value="__('Nome Completo')" />
+                            <x-text-input id="name" class="block mt-1 w-full"
+                                type="text" name="name"
+                                :value="old('name')" required autofocus autocomplete="name" />
+                            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                        </div>
+
+                        <!-- Email -->
+                        <div>
+                            <x-input-label for="email" :value="__('Email')" />
+                            <x-text-input id="email" class="block mt-1 w-full"
+                                type="email" name="email"
+                                :value="old('email')" required autocomplete="username" />
+                            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                        </div>
+
+                        <!-- Cargo -->
+                        <div>
+                            <x-input-label for="cargo_id" :value="__('Cargo')" />
+                            <x-custom-select name="cargo_id" id="cargo_id" required class="block mt-1 w-full rounded-md border-gray-300">
+                                <option value="">-- Selecione o cargo --</option>
+                                @foreach($cargosFiltrados as $cargo)
+                                    <option value="{{ $cargo->id }}" {{ old('cargo_id') == $cargo->id ? 'selected' : '' }}>
+                                        {{ $cargo->nome }}
+                                    </option>
+                                @endforeach
+                            </x-custom-select>
+                            <x-input-error :messages="$errors->get('cargo_id')" class="mt-2" />
+                        </div>
+
+                        <!-- Setor -->
+                        <div>
+                            <x-input-label for="setor_id" :value="__('Setor')" />
+                            <x-custom-select name="setor_id" id="setor_id" required class="block mt-1 w-full rounded-md border-gray-300">
+                                <option value="">-- Selecione o setor --</option>
+                                @foreach($setoresFiltrados as $setor)
+                                    <option value="{{ $setor->id }}" {{ old('setor_id') == $setor->id ? 'selected' : '' }}>
+                                        {{ $setor->nome }}
+                                    </option>
+                                @endforeach
+                            </x-custom-select>
+                            <x-input-error :messages="$errors->get('setor_id')" class="mt-2" />
+                        </div>
+
+                        <!-- Salário -->
+                        <div>
+                            <x-input-label for="salario" :value="__('Salário')" />
+                            <x-text-input id="salario" class="block mt-1 w-full"
+                                type="number" name="salario"
+                                value="{{ old('salario') }}" required step="0.01" />
+                            <x-input-error :messages="$errors->get('salario')" class="mt-2" />
+                        </div>
+
+                        <!-- Aviso de senha -->
+                        <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <p class="text-sm text-yellow-700">
+                                Por padrão, a senha do usuário criado será <span class="font-semibold">12345678</span>.
+                                No primeiro login, o sistema forçará o usuário a redefini-la.
+                            </p>
+                        </div>
+
+                        <!-- Botões -->
+                        <div class="flex justify-end gap-4 mt-6">
+                            <x-secondary-button x-on:click="$dispatch('close')" type="button">
+                                Cancelar
+                            </x-secondary-button>
+
+                            <x-primary-button type="submit">
+                                Registrar
+                            </x-primary-button>
+                        </div>
+                    </form>
+                </x-modal>
             @endif
         </div>
     </x-slot>
@@ -40,6 +124,7 @@
                         <td class="px-4 py-2">{{ $u->name }}</td>
                         <td class="px-4 py-2">{{ $u->cargo->nome }}</td>
                         <td class="px-4 py-2">{{ $u->setor->nome }}</td>
+                        @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'users.update'))
                         <td>
                             <!-- Botão Editar -->
                             <x-secondary-button class="px-1 py-0.5 text-xs"
@@ -79,28 +164,28 @@
                                             <!-- Cargo -->
                                             <div>
                                                 <x-input-label for="cargo_id" :value="__('Cargo')" />
-                                                <select name="cargo_id" id="cargo_id" required class="block mt-1 w-full rounded-md border-gray-300">
+                                                <x-custom-select name="cargo_id" id="cargo_id" required class="block mt-1 w-full rounded-md border-gray-300">
                                                     <option value="">-- Selecione o cargo --</option>
                                                     @foreach($cargosFiltrados as $cargo)
                                                         <option value="{{ $cargo->id }}" {{ old('cargo_id', $u->cargo_id) == $cargo->id ? 'selected' : '' }}>
                                                             {{ $cargo->nome }}
                                                         </option>
                                                     @endforeach
-                                                </select>
+                                                </x-custom-select>
                                                 <x-input-error :messages="$errors->get('cargo_id')" class="mt-2" />
                                             </div>
 
                                             <!-- Setor -->
                                             <div>
                                                 <x-input-label for="setor_id" :value="__('Setor')" />
-                                                <select name="setor_id" id="setor_id" required class="block mt-1 w-full rounded-md border-gray-300">
+                                                <x-custom-select name="setor_id" id="setor_id" required class="block mt-1 w-full rounded-md border-gray-300">
                                                     <option value="">-- Selecione o setor --</option>
                                                     @foreach($setoresFiltrados as $setor)
                                                         <option value="{{ $setor->id }}" {{ old('setor_id', $u->setor_id) == $setor->id ? 'selected' : '' }}>
                                                             {{ $setor->nome }}
                                                         </option>
                                                     @endforeach
-                                                </select>
+                                                </x-custom-select>
                                                 <x-input-error :messages="$errors->get('setor_id')" class="mt-2" />
                                             </div>
 
@@ -169,6 +254,7 @@
                                 </form>
                             </x-modal>
                         </td>
+                        @endif
                     </tr>
                 @endforeach
             </tbody>

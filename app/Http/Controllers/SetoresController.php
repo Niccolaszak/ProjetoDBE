@@ -15,11 +15,6 @@ class SetoresController extends Controller
         return view('setores.index', compact('setores'));
     }
 
-    public function create()
-    {
-        return view('setores.create');
-    }
-
     public function store(Request $request): RedirectResponse
     {
         $request->validate([

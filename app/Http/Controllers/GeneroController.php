@@ -15,11 +15,6 @@ class GeneroController extends Controller
         return view('generos.index', compact('generos'));
     }
 
-    public function create(): View
-    {
-        return view('generos.create');
-    }
-
     public function store(Request $request): RedirectResponse
     {
         $request->validate([

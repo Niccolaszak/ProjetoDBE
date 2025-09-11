@@ -7,7 +7,7 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Gerenciar Livros
             </h2>
-            @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'livros.create'))
+            @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'livros.store'))
                 <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'novo-livro')">
                     Novo Livro
                 </x-primary-button>
@@ -36,11 +36,11 @@
                         {{-- Gênero --}}
                         <div class="mt-4">
                             <x-input-label for="genero_id" :value="__('Gênero')" />
-                            <select id="genero_id" name="genero_id" class="mt-1 block w-full border rounded">
+                            <x-custom-select id="genero_id" name="genero_id" class="mt-1 block w-full border rounded">
                                 @foreach($generos as $genero)
                                     <option value="{{ $genero->id }}">{{ $genero->genero }}</option>
                                 @endforeach
-                            </select>
+                            </x-custom-select>
                             <x-input-error :messages="$errors->get('genero_id')" class="mt-2" />
                         </div>
 
@@ -91,6 +91,7 @@
                         <td class="px-4 py-2">{{ $livro->titulo}}</td>
                         <td class="px-4 py-2">{{ $livro->autor}}</td>
                         <td class="px-4 py-2">{{ $livro->genero->genero}}</td>
+                        @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'livros.store'))
                         <td>
                             <!-- Botão Editar -->
                             <x-secondary-button class="px-1 py-0.5 text-xs"
@@ -131,14 +132,14 @@
                                             <!-- Gênero -->
                                             <div>
                                                 <x-input-label for="genero_id" :value="__('Gênero')" />
-                                                <select name="genero_id" id="genero_id" required class="block mt-1 w-full rounded-md border-gray-300">
+                                                <x-custom-select name="genero_id" id="genero_id" required class="block mt-1 w-full rounded-md border-gray-300">
                                                     <option value="">-- Selecione o gênero --</option>
                                                     @foreach($generos as $genero)
                                                         <option value="{{ $genero->id }}" {{ old('genero_id', $livro->genero_id) == $genero->id ? 'selected' : '' }}>
                                                             {{ $genero->genero }}
                                                         </option>
                                                     @endforeach
-                                                </select>
+                                                </x-custom-select>
                                                 <x-input-error :messages="$errors->get('genero_id')" class="mt-2" />
                                             </div>
 
@@ -197,6 +198,7 @@
                                 </form>
                             </x-modal>
                         </td>
+                        @endif
 
                         <x-modal name="show-livro-{{ $livro->id }}" focusable>
                             <div class="p-6">

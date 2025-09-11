@@ -31,28 +31,28 @@
                 <!-- Select de Cargo -->
                 <div>
                     <x-input-label for="cargo_id" :value="__('Cargo')" />
-                    <select name="cargo_id" id="cargo_id" required class="block mt-1 w-full rounded-md border-gray-300">
+                    <x-custom-select name="cargo_id" id="cargo_id" required class="block mt-1 w-full rounded-md border-gray-300">
                         <option value="">-- Selecione o cargo --</option>
                         @foreach($cargos as $cargo)
                             <option value="{{ $cargo->id }}" {{ old('cargo_id') == $cargo->id ? 'selected' : '' }}>
                                 {{ $cargo->nome }}
                             </option>
                         @endforeach
-                    </select>
+                    </x-custom-select>
                     <x-input-error :messages="$errors->get('cargo_id')" class="mt-2" />
                 </div>
 
                 <!-- Select de Setor -->
                 <div>
                     <x-input-label for="setor_id" :value="__('Setor')" />
-                    <select name="setor_id" id="setor_id" required class="block mt-1 w-full rounded-md border-gray-300">
+                    <x-custom-select name="setor_id" id="setor_id" required class="block mt-1 w-full rounded-md border-gray-300">
                         <option value="">-- Selecione o setor --</option>
                         @foreach($setores as $setor)
                             <option value="{{ $setor->id }}" {{ old('setor_id') == $setor->id ? 'selected' : '' }}>
                                 {{ $setor->nome }}
                             </option>
                         @endforeach
-                    </select>
+                    </x-custom-select>
                     <x-input-error :messages="$errors->get('setor_id')" class="mt-2" />
                 </div>
 

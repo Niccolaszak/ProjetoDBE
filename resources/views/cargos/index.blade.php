@@ -7,10 +7,44 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Gerenciar Cargos
             </h2>
-            @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'cargos.create'))
-                <x-primary-button onclick="window.location='{{ route('cargos.create') }}'">
+            @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'cargos.store'))
+                <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'novo-cargo')">
                     Novo Cargo
                 </x-primary-button>
+                <x-modal name="novo-cargo" :show="false" focusable>
+                    <form action="{{ route('cargos.store') }}" method="POST" class="p-6 space-y-6">
+                        @csrf
+
+                        <h2 class="text-lg font-medium text-gray-900">
+                            Novo Cargo
+                        </h2>
+
+                        {{-- Nome do Cargo --}}
+                        <div class="mt-4">
+                            <x-input-label for="nome" :value="__('Nome do Cargo')" />
+                            <x-text-input id="nome" name="nome" type="text" class="mt-1 block w-full" required autofocus />
+                            <x-input-error :messages="$errors->get('nome')" class="mt-2" />
+                        </div>
+
+                        {{-- Descrição --}}
+                        <div class="mt-4">
+                            <x-input-label for="descricao" :value="__('Descrição')" />
+                            <x-text-area id="descricao" name="descricao" class="mt-1 block w-full" rows="3" />
+                            <x-input-error :messages="$errors->get('descricao')" class="mt-2" />
+                        </div>
+
+                        {{-- Botões --}}
+                        <div class="flex justify-end gap-4 mt-6">
+                            <x-secondary-button x-on:click="$dispatch('close')" type="button">
+                                Cancelar
+                            </x-secondary-button>
+
+                            <x-primary-button type="submit">
+                                Salvar
+                            </x-primary-button>
+                        </div>
+                    </form>
+                </x-modal>
             @endif
         </div>
     </x-slot>
@@ -35,6 +69,7 @@
                     <tr class="border-b border-gray-200 hover:bg-gray-50">
                         <td class="px-4 py-2">{{ $cargo->nome }}</td>
                         <td class="px-4 py-2">{{ $cargo->descricao }}</td>
+                        @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'cargos.store'))
                         <td>
                             <x-secondary-button class="px-1 py-0.5 text-xs"
                                 x-data=""
@@ -68,6 +103,7 @@
                                 </form>
                             </x-modal>
                         </td>
+                        @endif
                     </tr>
                 @endforeach
             </tbody>

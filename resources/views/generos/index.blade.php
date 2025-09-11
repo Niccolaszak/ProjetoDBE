@@ -7,7 +7,7 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Gerenciar Gêneros
             </h2>
-            @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'generos.create'))
+            @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'generos.store'))
                 <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'novo-genero')">
                     Novo Gênero
                 </x-primary-button>
@@ -67,6 +67,7 @@
                     <tr class="border-b border-gray-200 hover:bg-gray-50">
                         <td class="px-4 py-2">{{ $genero->genero }}</td>
                         <td class="px-4 py-2">{{ $genero->descricao_genero }}</td>
+                        @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'generos.store'))
                         <td>
                             <x-secondary-button class="px-1 py-0.5 text-xs"
                                 x-data=""
@@ -100,6 +101,7 @@
                                 </form>
                             </x-modal>
                         </td>
+                        @endif
                     </tr>
                 @endforeach
             </tbody>

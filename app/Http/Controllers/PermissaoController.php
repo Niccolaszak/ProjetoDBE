@@ -18,7 +18,23 @@ class PermissaoController extends Controller
             })*/
             ->get();
 
-        return view('permissoes.index', compact('permissoes'));
+        $telas = Tela::all();
+        $cargos = Cargo::all();
+        $setores = Setor::all();
+
+        $cargosFiltrados = $cargos->filter(function($c) {
+            return $c->nome !== 'Admin' && $c->nome !== 'Teste'; 
+        });
+
+        $setoresFiltrados = $setores->filter(function($s) {
+            return $s->nome !== 'Admin' && $s->nome !== 'Teste';
+        });
+
+        $telasFiltradas = $telas->filter(function($t) {
+            return $t->nome !== 'Consultar Painel';
+        });
+
+        return view('permissoes.index', compact('permissoes', 'cargosFiltrados', 'setoresFiltrados', 'telasFiltradas'));
     }
 
 
@@ -40,7 +56,7 @@ class PermissaoController extends Controller
             return $t->nome !== 'Consultar Painel';
         });
 
-        return view('permissoes.create', compact('telasFiltradas', 'cargosFiltrados', 'setoresFiltrados'));
+        return view('permissoes.index', compact('telasFiltradas', 'cargosFiltrados', 'setoresFiltrados'));
     }
 
     public function store(Request $request)

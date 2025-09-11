@@ -14,11 +14,6 @@ class CargosController extends Controller
         return view('cargos.index', compact('cargos'));
     }
 
-    public function create()
-    {
-        return view('cargos.create');
-    }
-
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
