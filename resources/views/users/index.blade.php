@@ -144,17 +144,28 @@
                                                     :value="old('email', $u->email)" required autocomplete="username" />
                                                 <x-input-error :messages="$errors->get('email')" class="mt-2" />
                                             </div>
-
-                                            <!-- Cargo -->
                                             <div>
-                                                <x-custom-select name="cargo_id" :options="$cargosFiltrados" label="Cargo" placeholder="Selecione o cargo" />
+                                                <x-custom-select
+                                                    name="cargo_id"
+                                                    :options="$cargosFiltrados"
+                                                    :label="'Cargo'"
+                                                    :placeholder="'-- Selecione o cargo --'"
+                                                    :selected="old('cargo_id', $u->cargo_id)"
+                                                />
+
                                                 <x-input-error :messages="$errors->get('cargo_id')" class="mt-2" />
                                             </div>
-
-                                            <!-- Setor -->
+                                            
                                             <div>
-                                                <x-custom-select name="setor_id" :options="$setoresFiltrados" label="Setor" placeholder="Selecione o setor" />
-                                                <x-input-error :messages="$errors->get('setor_id')" class="mt-2" />
+                                                <x-custom-select
+                                                    name="setor_id"
+                                                    :options="$setoresFiltrados"
+                                                    :label="'Setor'"
+                                                    :placeholder="'-- Selecione o setor --'"
+                                                    :selected="old('setor_id', $u->setor_id)"
+                                                />
+
+                                                <x-input-error :messages="$errors->get('cargo_id')" class="mt-2" />
                                             </div>
 
                                             <!-- Salário -->
@@ -228,7 +239,7 @@
             </tbody>
         </table>
         <div  class="flex justify-end mt-6 pr-6">
-            <x-primary-button class="ms-4" onclick="window.location='{{ route('painel') }}'">
+            <x-primary-button x-data="" class="ms-4" x-on:click="window.location.href='{{ route('painel') }}'">
                 {{ __('Voltar') }}
             </x-primary-button>
         </div>
