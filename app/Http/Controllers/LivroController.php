@@ -13,8 +13,10 @@ class LivroController extends Controller
 
     public function index(): View
     {
-        $livros = Livro::with('genero')->get();
-        return view('livros.index', compact('livros'));
+        $livros  = Livro::with('genero')->get();
+        $generos = Genero::all();               
+
+        return view('livros.index', compact('livros', 'generos'));
     }
 
     public function create(): View

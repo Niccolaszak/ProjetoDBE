@@ -63,7 +63,7 @@ return [
     ],
     [
         'nome' => 'Editar Generos',
-        'rotas' => ['generos.index', 'generos.create', 'generos.store', 'generos.destroy']
+        'rotas' => ['generos.index', 'generos.store', 'generos.destroy']
     ],
     [
         'nome' => 'Consultar Movimentações',
