@@ -50,7 +50,7 @@
             </tbody>
         </table>
         <div  class="flex justify-end mt-6 pr-6">
-            <x-primary-button class="ms-4" onclick="window.location='{{ route('painel') }}'">
+            <x-primary-button x-data="" class="ms-4" x-on:click="window.location.href='{{ route('painel') }}'">
                 {{ __('Voltar') }}
             </x-primary-button>
         </div>

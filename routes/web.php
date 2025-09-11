@@ -13,6 +13,7 @@ use App\Http\Controllers\EstoqueController;
 use App\Http\Controllers\GeneroController;
 use App\Http\Controllers\LivroController;
 use App\Http\Controllers\MovimentacaoController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 Route::middleware('guest')->group(function () {
@@ -29,9 +30,7 @@ Route::post('/senha/redefinir', [SenhaController::class, 'update']);
 Route::get('/hello-world', [HelloWorldController::class, 'exibirMensagem']);
 Route::middleware(['auth', ForcarRedefinirSenha::class])->group(function () {
 
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
     Route::get('/painel', fn() => view('painelControle'))->name('painel');
 
