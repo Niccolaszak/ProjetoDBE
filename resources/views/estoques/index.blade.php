@@ -15,25 +15,25 @@
         <table class="w-full border border-gray-300 bg-white rounded-lg shadow-md" id="setoresTable">
             <thead class="bg-gray-100 border-b border-gray-300">
                 <tr>
-                    <th class="px-4 py-2 text-left font-semibold text-gray-700 cursor-pointer" onclick="ordenarTabela(1)">
+                    <th class="px-4 py-2 text-left font-semibold text-gray-700 cursor-pointer" onclick="ordenarTabela(0)">
                         Livro ⬍ <br>
-                        <input id="filtro-livro" type="text" onkeyup="filtrarTabela()" data-col="1" class="mt-1 p-1 border rounded w-full text-sm" placeholder="Filtrar Livro...">
+                        <input id="filtro-livro" type="text" onkeyup="filtrarTabela()" data-col="0" class="mt-1 p-1 border rounded w-full text-sm" placeholder="Filtrar Livro...">
+                    </th>
+                    <th class="px-4 py-2 text-left font-semibold text-gray-700 cursor-pointer" onclick="ordenarTabela(1)">
+                        Quantidade Disponível ⬍ <br>
+                        <input id="filtro-disponivel" type="text" onkeyup="filtrarTabela()" data-col="1" class="mt-1 p-1 border rounded w-full text-sm" placeholder="Filtrar Quantidade Disponível...">
                     </th>
                     <th class="px-4 py-2 text-left font-semibold text-gray-700 cursor-pointer" onclick="ordenarTabela(2)">
-                        Quantidade Disponível ⬍ <br>
-                        <input id="filtro-disponivel" type="text" onkeyup="filtrarTabela()" data-col="2" class="mt-1 p-1 border rounded w-full text-sm" placeholder="Filtrar Quantidade Disponível...">
+                        Quantidade Consumida ⬍ <br>
+                        <input id="filtro-consumida" type="text" onkeyup="filtrarTabela()" data-col="2" class="mt-1 p-1 border rounded w-full text-sm" placeholder="Filtrar Quantidade Consumida...">
                     </th>
                     <th class="px-4 py-2 text-left font-semibold text-gray-700 cursor-pointer" onclick="ordenarTabela(3)">
-                        Quantidade Consumida ⬍ <br>
-                        <input id="filtro-consumida" type="text" onkeyup="filtrarTabela()" data-col="3" class="mt-1 p-1 border rounded w-full text-sm" placeholder="Filtrar Quantidade Consumida...">
+                        Total Movimentado ⬍ <br>
+                        <input id="filtro-movimentada" type="text" onkeyup="filtrarTabela()" data-col="3" class="mt-1 p-1 border rounded w-full text-sm" placeholder="Filtrar Total Movimentado...">
                     </th>
                     <th class="px-4 py-2 text-left font-semibold text-gray-700 cursor-pointer" onclick="ordenarTabela(4)">
-                        Total Movimentado ⬍ <br>
-                        <input id="filtro-movimentada" type="text" onkeyup="filtrarTabela()" data-col="4" class="mt-1 p-1 border rounded w-full text-sm" placeholder="Filtrar Total Movimentado...">
-                    </th>
-                    <th class="px-4 py-2 text-left font-semibold text-gray-700 cursor-pointer" onclick="ordenarTabela(5)">
                         Última Movimentação ⬍ <br>
-                        <input id="filtro-hist" type="text" onkeyup="filtrarTabela()" data-col="5" class="mt-1 p-1 border rounded w-full text-sm" placeholder="Filtrar Última Movimentação...">
+                        <input id="filtro-hist" type="text" onkeyup="filtrarTabela()" data-col="4" class="mt-1 p-1 border rounded w-full text-sm" placeholder="Filtrar Última Movimentação...">
                     </th>
                 </tr>
             </thead>

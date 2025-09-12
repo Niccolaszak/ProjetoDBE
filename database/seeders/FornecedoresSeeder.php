@@ -11,7 +11,7 @@ class FornecedoresSeeder extends Seeder
     {
         $fornecedores = [
             [
-                'tipo' => 'fornecedor',
+                'tipo' => 'CNPJ',
                 'razao_social' => 'Livraria Alpha Ltda',
                 'cnpj_cpf' => '12.345.678/0001-90',
                 'email' => 'contato@alpha.com',
@@ -25,7 +25,7 @@ class FornecedoresSeeder extends Seeder
                 'agencia' => '001',
             ],
             [
-                'tipo' => 'fornecedor',
+                'tipo' => 'CNPJ',
                 'razao_social' => 'Editora Beta',
                 'cnpj_cpf' => '98.765.432/0001-10',
                 'email' => 'vendas@beta.com',
@@ -39,7 +39,7 @@ class FornecedoresSeeder extends Seeder
                 'agencia' => '002',
             ],
             [
-                'tipo' => 'fornecedor',
+                'tipo' => 'CNPJ',
                 'razao_social' => 'Distribuidora Gama',
                 'cnpj_cpf' => '11.222.333/0001-44',
                 'email' => 'contato@gama.com',
@@ -53,7 +53,7 @@ class FornecedoresSeeder extends Seeder
                 'agencia' => '003',
             ],
             [
-                'tipo' => 'fornecedor',
+                'tipo' => 'CNPJ',
                 'razao_social' => 'Livros Delta',
                 'cnpj_cpf' => '55.666.777/0001-88',
                 'email' => 'contato@delta.com',

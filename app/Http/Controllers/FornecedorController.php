@@ -18,10 +18,10 @@ class FornecedorController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'tipo' => 'required|string|max:50',
+            'tipo' => 'required|in:CNPJ,CPF',
             'razao_social' => 'required|string|max:150',
-            'cpf_cnpj' => 'required|string|max:20|unique:fornecedores,cpf_cnpj',
-            'email' => 'email|max:100',
+            'cnpj_cpf' => 'required|string|max:20|unique:fornecedores,cnpj_cpf',
+            'email' => 'string|max:100',
             'telefone' => 'string|max:20',
             'endereco' => 'string|max:150',
             'cidade' => 'string|max:100',
@@ -38,13 +38,14 @@ class FornecedorController extends Controller
                          ->with('success', 'Fornecedor criado com sucesso!');
     }
 
-    public function update(Request $request, Fornecedor $fornecedor): RedirectResponse
+    public function update(Request $request, string $id): RedirectResponse
     {
+        $fornecedor = Fornecedor::findOrFail($id);
         $request->validate([
-            'tipo' => 'required|string|max:50',
+            'tipo' => 'required|in:CNPJ,CPF',
             'razao_social' => 'required|string|max:150',
-            'cpf_cnpj' => 'required|string|max:20|unique:fornecedores,cpf_cnpj,' . $fornecedor->id,
-            'email' => 'email|max:100',
+            'cnpj_cpf' => 'required|string|max:20|unique:fornecedores,cnpj_cpf,' . $fornecedor->id,
+            'email' => 'string|max:100',
             'telefone' => 'string|max:20',
             'endereco' => 'string|max:150',
             'cidade' => 'string|max:100',
@@ -61,8 +62,9 @@ class FornecedorController extends Controller
                          ->with('success', 'Fornecedor atualizado com sucesso!');
     }
 
-    public function destroy(Fornecedor $fornecedor): RedirectResponse
+    public function destroy(string $id)
     {
+        $fornecedor = Fornecedor::findOrFail($id);
         if ($fornecedor->movimentacoes()->exists()) {
             return redirect()->route('fornecedores.index')
                              ->with('error', 'Não é possível excluir este fornecedor, pois existem movimentações vinculadas.');

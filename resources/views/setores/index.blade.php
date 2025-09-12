@@ -55,13 +55,13 @@
         <table class="w-full border border-gray-300 bg-white rounded-lg shadow-md" id="setoresTable">
             <thead class="bg-gray-100 border-b border-gray-300">
                 <tr>
-                    <th class="px-4 py-2 text-left font-semibold text-gray-700 cursor-pointer" onclick="ordenarTabela(1)">
+                    <th class="px-4 py-2 text-left font-semibold text-gray-700 cursor-pointer" onclick="ordenarTabela(0)">
                         Setor ⬍ <br>
-                        <input id="filtro-setor" type="text" onkeyup="filtrarTabela()" data-col="1" class="mt-1 p-1 border rounded w-full text-sm" placeholder="Filtrar setor...">
+                        <input id="filtro-setor" type="text" onkeyup="filtrarTabela()" data-col="0" class="mt-1 p-1 border rounded w-full text-sm" placeholder="Filtrar setor...">
                     </th>
-                    <th colspan="2" class="px-4 py-2 text-left font-semibold text-gray-700 cursor-pointer" onclick="ordenarTabela(2)">
+                    <th colspan="2" class="px-4 py-2 text-left font-semibold text-gray-700 cursor-pointer" onclick="ordenarTabela(1)">
                         Descrição ⬍ <br>
-                        <input id="filtro-descricao" type="text" onkeyup="filtrarTabela()" data-col="2" class="mt-1 p-1 border rounded w-full text-sm" placeholder="Filtrar descrição...">
+                        <input id="filtro-descricao" type="text" onkeyup="filtrarTabela()" data-col="1" class="mt-1 p-1 border rounded w-full text-sm" placeholder="Filtrar descrição...">
                     </th>
                 </tr>
             </thead>

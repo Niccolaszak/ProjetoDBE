@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             GenerosSeeder::class,
             LivrosSeeder::class,
             FornecedoresSeeder::class,
+            MovimentacoesSeeder::class,
         ]);
         // User::factory(10)->create();
 

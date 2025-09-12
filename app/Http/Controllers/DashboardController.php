@@ -2,31 +2,48 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Estoque;
 use App\Models\Movimentacao;
+use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(): View
     {
-        // Pega o estoque atual (ajuste conforme sua lógica)
-        $estoque = Estoque::with('livro')->first();
+        // Totais globais
+        $estoque = (object)[
+            'quantidade_disponivel' => Estoque::sum('quantidade_disponivel'),
+            'quantidade_consumida'  => Estoque::sum('quantidade_consumida'),
+        ];
 
-        // Agrupa movimentações por mês e tipo (entrada/saida)
-        $movimentacoes = Movimentacao::selectRaw('DATE_FORMAT(data_hora, "%Y-%m") as mes, tipo, SUM(quantidade) as total')
-            ->groupBy('mes', 'tipo')
-            ->get();
+        $totalMovimentacoes = Movimentacao::count();
+        $totalLivros = Estoque::count(); // cada estoque está ligado a um livro
 
-        $labels = $movimentacoes->pluck('mes')->unique();
-        $entradas = $labels->map(fn($mes) => $movimentacoes->where('mes', $mes)->where('tipo','entrada')->sum('total'));
-        $saidas = $labels->map(fn($mes) => $movimentacoes->where('mes', $mes)->where('tipo','saida')->sum('total'));
+        // Movimentações mensais (agrupadas por mês)
+        $movimentacoes = Movimentacao::selectRaw("
+            DATE_FORMAT(created_at, '%m/%Y') as mes,
+            SUM(CASE WHEN tipo='entrada' THEN quantidade ELSE 0 END) as entradas,
+            SUM(CASE WHEN tipo='saida' THEN quantidade ELSE 0 END) as saidas
+        ")->groupBy('mes')->orderBy('mes')->get();
 
-        return view('dashboard.index', [
-            'estoque' => $estoque,
-            'movimentacoesLabels' => $labels,
-            'movimentacoesEntradas' => $entradas,
-            'movimentacoesSaidas' => $saidas,
-        ]);
+        $movimentacoesLabels = $movimentacoes->pluck('mes');
+        $movimentacoesEntradas = $movimentacoes->pluck('entradas');
+        $movimentacoesSaidas = $movimentacoes->pluck('saidas');
+
+
+        $estoques = Estoque::with('livro')->get();
+        $livrosLabels = $estoques->pluck('livro.titulo');
+        $livrosDisponiveis = $estoques->pluck('quantidade_disponivel');
+
+        return view('dashboard.index', compact(
+            'estoque',
+            'totalMovimentacoes',
+            'totalLivros',
+            'movimentacoesLabels',
+            'movimentacoesEntradas',
+            'movimentacoesSaidas',
+            'livrosLabels',
+            'livrosDisponiveis'
+        ));
     }
 }

@@ -14,7 +14,7 @@ class Fornecedor extends Model
     protected $fillable = [
         'tipo',
         'razao_social',
-        'cpf_cnpj',
+        'cnpj_cpf',
         'email',
         'telefone',
         'endereco',
@@ -28,6 +28,6 @@ class Fornecedor extends Model
 
     public function movimentacoes()
     {
-        return $this->hasMany(Movimentacao::class, 'fornecedor_id', 'id');
+        return $this->hasMany(Movimentacao::class, 'relacionamento_id', 'id');
     }
 }

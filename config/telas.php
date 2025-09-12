@@ -75,11 +75,11 @@ return [
     ],
     [
         'nome' => 'Consultar Estoque',
-        'rotas' => ['estoques.index', 'estoques.show']
+        'rotas' => ['estoques.index']
     ],
     [
         'nome' => 'Editar Fornecedores',
-        'rotas' => ['fornecedores.index', 'fornecedores.store', 'fornecedores.destroy']
+        'rotas' => ['fornecedores.index', 'fornecedores.store', 'fornecedores.update', 'fornecedores.destroy']
     ],
     [
         'nome' => 'Consultar Fornecedores',

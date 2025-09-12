@@ -14,7 +14,9 @@ use App\Http\Controllers\GeneroController;
 use App\Http\Controllers\LivroController;
 use App\Http\Controllers\MovimentacaoController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FornecedorController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Models\Fornecedor;
 
 Route::middleware('guest')->group(function () {
     // Login será a página inicial
@@ -62,6 +64,9 @@ Route::middleware(['auth', ForcarRedefinirSenha::class])->group(function () {
 
         Route::resource('generos', GeneroController::class)
             ->except(['show','edit','update']);
+        
+        Route::resource('fornecedores', FornecedorController::class)
+            ->except(['show','edit', 'create']);
 
         Route::prefix('profile')->group(function () {
             Route::get('/edit', [ProfileController::class, 'edit'])->name('profile.edit');
