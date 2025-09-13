@@ -76,7 +76,6 @@ Essa modelagem foi pensada para garantir organização, segurança no acesso e c
   - **Gêneros**, **Setores**, **Movimentações** e outros conforme necessidade
 - Todas as operações interagem com o **banco de dados MySQL** via **Models** e **Controllers**
 - Implementação de relacionamentos entre **Models**:
-  - **Um-para-um** (ex: usuário ↔ cargo)
   - **Um-para-muitos** (ex: cargo → funcionários, gênero → livros)
   - **Muitos-para-muitos** quando aplicável (ex: movimentações relacionadas a múltiplos itens)
 - Uso de **Seeders** para popular dados iniciais (ex: `MovimentacoesSeeder`)
