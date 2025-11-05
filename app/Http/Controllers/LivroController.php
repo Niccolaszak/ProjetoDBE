@@ -2,63 +2,102 @@
 
 namespace App\Http\Controllers;
 
+// Imports do CQRS
+use App\Core\Livros\Commands\CreateLivroCommand;
+use App\Core\Livros\Handlers\CreateLivroHandler;
+use App\Core\Livros\Commands\UpdateLivroCommand;
+use App\Core\Livros\Handlers\UpdateLivroHandler;
+use App\Core\Livros\Commands\DestroyLivroCommand;
+use App\Core\Livros\Handlers\DestroyLivroHandler;
+use App\Core\Livros\Queries\ListarLivrosQuery; 
+
+// Imports de Models e Request
 use App\Models\Livro;
-use App\Models\Genero;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class LivroController extends Controller
 {
-
-    public function index(): View
+    /**
+     * @param ListarLivrosQuery $query
+     * @return View
+     */
+    public function index(ListarLivrosQuery $query): View
     {
-        $livros  = Livro::with('genero')->get();
-        $generos = Genero::all();
-        $generosOptions = $generos->map(fn($g) => (object)[
-            'id' => $g->id,
-            'nome' => $g->genero
-        ]);               
+        $data = $query->handle();
 
-        return view('livros.index', compact('livros', 'generosOptions'));
+        return view('livros.index', $data);
     }
 
-    public function store(Request $request): RedirectResponse
+    /**
+     * @param Request $request
+     * @param CreateLivroHandler $handler
+     * @return RedirectResponse
+     */
+    public function store(Request $request, CreateLivroHandler $handler): RedirectResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'titulo' => 'required|string|max:100',
             'autor' => 'required|string|max:100',
             'genero_id' => 'required|exists:generos,id',
             'descricao_livro' => 'required|string',
         ]);
 
-        Livro::create($request->only('titulo','autor','genero_id','descricao_livro'));
+        $command = new CreateLivroCommand(
+            titulo: $validated['titulo'],
+            autor: $validated['autor'],
+            genero_id: (int) $validated['genero_id'],
+            descricao_livro: $validated['descricao_livro']
+        );
+
+        $handler($command);
 
         return redirect()->route('livros.index')->with('success', 'Livro criado com sucesso!');
     }
 
-    public function update(Request $request, Livro $livro): RedirectResponse
+    /**
+     * @param Request $request
+     * @param Livro $livro
+     * @param UpdateLivroHandler $handler
+     * @return RedirectResponse
+     */
+    public function update(Request $request, Livro $livro, UpdateLivroHandler $handler): RedirectResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'titulo' => 'required|string|max:100',
             'autor' => 'required|string|max:100',
             'genero_id' => 'required|exists:generos,id',
             'descricao_livro' => 'required|string',
         ]);
 
-        $livro->update($request->only('titulo','autor','genero_id','descricao_livro'));
+        $command = new UpdateLivroCommand(
+            livro: $livro,
+            titulo: $validated['titulo'],
+            autor: $validated['autor'],
+            genero_id: (int) $validated['genero_id'],
+            descricao_livro: $validated['descricao_livro']
+        );
+
+        $handler($command);
 
         return redirect()->route('livros.index')->with('success', 'Livro atualizado com sucesso!');
     }
 
-    public function destroy(Livro $livro): RedirectResponse
+    /**
+     * @param Livro $livro
+     * @param DestroyLivroHandler $handler
+     * @return RedirectResponse
+     */
+    public function destroy(Livro $livro, DestroyLivroHandler $handler): RedirectResponse
     {
-        
-        if ($livro->movimentacoes()->exists()) {
-            return redirect()->route('livros.index')->with('error', 'Não é possível excluir este livro, pois existem movimentações vinculadas.');
-        }
+        $command = new DestroyLivroCommand(livro: $livro);
 
-        $livro->delete();
+        try {
+            $handler($command);
+        } catch (\Exception $e) {
+            return redirect()->route('livros.index')->with('error', $e->getMessage());
+        }
 
         return redirect()->route('livros.index')->with('success', 'Livro excluído com sucesso!');
     }
