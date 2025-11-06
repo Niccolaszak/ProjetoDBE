@@ -42,12 +42,12 @@ Sistema de gerenciamento de livraria, controlando livros, funcionários, cargos,
     ```bash
     php artisan serve
     ```
-# Primeiro acesso
-1. Entre com `admin@admin.com` e senha `admin123`.
+8. Primeiro acesso
+  * Entre com `admin@admin.com` e senha `admin123`.
 
 ---
 
-# Etapa 1 - 15/08
+# Etapa 1 - 07/11
 
 ## Arquitetura, Padrões de Projeto e SOLID
 
@@ -56,9 +56,13 @@ O projeto foi reestruturado aplicando Padrões de Projeto (Design Patterns) e pr
 ## 1. Padrão CQRS (Command Query Responsibility Segregation)
 
 - **Objetivo:** Separar as operações de **Escrita (Commands)** das operações de **Leitura (Queries)**.
+
 - **Demonstração:** O `LivroController` foi totalmente refatorado.
+
     - **Escrita (Commands):** As lógicas de `store`, `update` e `destroy` foram movidas do Controller para classes de *Handler* dedicadas (ex: `CreateLivroHandler`, `UpdateLivroHandler`, `DestroyLivroHandler`) localizadas em `app/Core/Livros/Handlers`. Os dados são transportados por *Commands* (DTOs) (ex: `CreateLivroCommand`) localizados em `app/Core/Livros/Commands`.
+
     - **Leitura (Queries):** A lógica de `index` (que busca livros e gêneros) foi movida para a classe `ListarLivrosQuery` em `app/Core/Livros/Queries`.
+    
 - **Princípio SOLID Aplicado:** **Single Responsibility Principle (S)**. O `LivroController` agora tem a única responsabilidade de lidar com a requisição HTTP (validação e resposta), enquanto os Handlers e Queries cuidam da lógica de negócio e acesso a dados.
 
 ## 2. Padrão Strategy
