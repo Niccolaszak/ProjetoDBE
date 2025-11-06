@@ -43,7 +43,7 @@ Sistema de gerenciamento de livraria, controlando livros, funcionários, cargos,
     php artisan serve
     ```
 8. Primeiro acesso
-  * Entre com `admin@admin.com` e senha `admin123`.
+    * Entre com `admin@admin.com` e senha `admin123`.
 
 ---
 
@@ -62,30 +62,43 @@ O projeto foi reestruturado aplicando Padrões de Projeto (Design Patterns) e pr
     - **Escrita (Commands):** As lógicas de `store`, `update` e `destroy` foram movidas do Controller para classes de *Handler* dedicadas (ex: `CreateLivroHandler`, `UpdateLivroHandler`, `DestroyLivroHandler`) localizadas em `app/Core/Livros/Handlers`. Os dados são transportados por *Commands* (DTOs) (ex: `CreateLivroCommand`) localizados em `app/Core/Livros/Commands`.
 
     - **Leitura (Queries):** A lógica de `index` (que busca livros e gêneros) foi movida para a classe `ListarLivrosQuery` em `app/Core/Livros/Queries`.
-    
+
 - **Princípio SOLID Aplicado:** **Single Responsibility Principle (S)**. O `LivroController` agora tem a única responsabilidade de lidar com a requisição HTTP (validação e resposta), enquanto os Handlers e Queries cuidam da lógica de negócio e acesso a dados.
 
 ## 2. Padrão Strategy
 
 - **Objetivo:** Permitir que um algoritmo varie independentemente dos clientes que o utilizam.
+
 - **Demonstração:** A lógica de movimentação de estoque foi desacoplada do `MovimentacaoController` e do model `Movimentacao`.
+
     - A lógica de `aplicarEstoque` e `reverterEstoque`, que antes estava no *Model*, foi movida para classes de Estratégia concretas: `EntradaStrategy` e `SaidaStrategy`, localizadas em `app/Domain/Movimentacao/Strategies`.
+
     - Ambas implementam a interface `MovimentacaoStrategy`.
+
     - Um `MovimentacaoContext` e um `MovimentacaoService` são usados para orquestrar e selecionar a estratégia correta (`entrada` ou `saida`) em tempo de execução.
+
 - **Princípio SOLID Aplicado:** **Open/Closed Principle (O)**. O `MovimentacaoService` está *fechado para modificação*, mas *aberto para extensão*. Podemos adicionar novos tipos de movimentação (ex: `AjusteStrategy`) sem alterar o código do Service ou do Controller.
 
 ## 3. Padrão Factory Method
 
 - **Objetivo:** Definir uma interface para criar um objeto, mas deixar a "fábrica" decidir qual classe concreta instanciar.
+
 - **Demonstração:** Foi implementado um sistema de geração de relatórios de Livros (`PDF` e `CSV`), seguindo o exemplo de `ReportFactory`.
+
     - A `ReportFactory` (em `app/Domain/Reports/`) possui o método `createReport(string $type)` que centraliza a lógica de criação.
+
     - Baseado no `$type`, ela retorna uma instância de `LivroPdfReport` (usando `barryvdh/laravel-dompdf` e uma view Blade) ou `LivroCsvReport`.
+
     - Ambas as classes implementam a `ReportInterface`.
+
 - **Princípio SOLID Aplicado:** O `ReportService` e o `ReportController` dependem da abstração (`ReportInterface`), não de implementações concretas, demonstrando o **Dependency Inversion Principle (D)**.
 
 ## 4. Injeção de Dependência (DI)
 
 - **Demonstração:** O princípio de Inversão de Dependência foi aplicado em todas as refatorações usando o **Service Container** do Laravel.
+
     - Controllers recebem Services, Handlers e Queries via injeção no construtor ou no método (ex: `public function store(..., CreateLivroHandler $handler)`).
+
     - Services recebem suas dependências (ex: `ReportService` injeta `ReportFactory`).
+
     - Isso desacopla o código e o torna altamente testável.
