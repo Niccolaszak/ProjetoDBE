@@ -12,127 +12,76 @@ Sistema de gerenciamento de livraria, controlando livros, funcionários, cargos,
 
 # Como rodar localHost
 
-1. Ative o seu pacote de software de servidor local (usamos o WAMP)
-2. Clone o repositório
-3. Configure o .env para seu banco de dados (se houver, retire o .exemple do arquivo .env)
-4. Com a pasta do projeto aberta no CMD rode
-     ```CMD
-     composer install
-     npm install
-     ```
-     Se der erro, tente entrar no CMD como administrador
-     ou
-     Entregue permissão para edição da pasta pelo CMD
-     ```CMD
-     icacls "C:\Caminho\da\Pasta" /grant Todos:(OI)(CI)F /T /C
-     ```
+1.  Ative o seu pacote de software de servidor local (usamos o WAMP).
+2.  Clone o repositório.
+3.  Configure o `.env` para seu banco de dados (se houver, retire o `.exemple` do arquivo `.env`).
+4.  Com a pasta do projeto aberta no CMD rode:
+    ```CMD
+    composer install
+    npm install
+    ```
+    **Observação sobre erros:**
+    * Se o `npm install` falhar com um erro de `UnauthorizedAccess` ou "execução de scripts foi desabilitada", execute o VS Code (ou o CMD/PowerShell) como **Administrador** e tente novamente.
+    * Se o `composer install` falhar com um erro sobre `bootstrap/cache`, crie manualmente a pasta `cache` dentro da pasta `bootstrap` e rode `composer install` novamente.
 
-5. Abra a pasta do projeto no VSCode para rodar as migrations e seeders
-     ```bash
-     php artisan migrate:fresh --seed
-     ```
+5.  Abra a pasta do projeto no VSCode para rodar as migrations e seeders:
+    ```bash
+    php artisan migrate:fresh --seed
+    ```
 
-6. Crie a chave de criptografia da aplicação
-     ```bash
-     php artisan key:generate
-     ```
+6.  Crie a chave de criptografia da aplicação:
+    ```bash
+    php artisan key:generate
+    ```
 
-7. No CMD rode
+7.  No CMD rode:
     ```CMD
     npm run dev
     ```
-    Depois no VsCode
+    Depois no VsCode:
     ```bash
-     php artisan serve
-     ```
+    php artisan serve
+    ```
 # Primeiro acesso
-1. Entre com admin@admin.com e senha admin123
-2. Agora é só se divertir, descobrir o que faz o que e moldar o projeto para você
+1. Entre com `admin@admin.com` e senha `admin123`.
+
+---
 
 # Etapa 1 - 15/08
 
-Foram criadas 5 tabelas principais para atender às funcionalidades do sistema:
+## Arquitetura, Padrões de Projeto e SOLID
 
-- **genero**: contém `id` e `tipo` para padronizar e categorizar os livros por gênero literário, facilitando consultas e filtros.
-- **cargo**: com `id`, `cargo` e `salário`, permitindo controlar permissões e níveis de acesso dos funcionários no sistema.
-- **funcionario**: registra dados do colaborador (`id`, `nome`, `sobrenome`, `email`) e vincula ao cargo via `cargo_id`, essencial para controlar quem realiza as movimentações.
-- **usuario**: armazena as credenciais de acesso (`login`, `senha`) associadas ao funcionário (`funcionario_id`), garantindo segurança no acesso ao sistema.
-- **livro**: principal tabela que guarda informações sobre os livros (`titulo`, `autor`, `genero_id`, `quantidade_disponivel`) e registra movimentações importantes (`acao`, `responsavel_mov`, `data_hora`) para rastrear alterações no acervo.
+O projeto foi reestruturado aplicando Padrões de Projeto (Design Patterns) e princípios SOLID para garantir um código limpo, manutenível, testável e escalável.
 
-Essa modelagem foi pensada para garantir organização, segurança no acesso e controle detalhado das movimentações, atendendo aos requisitos do sistema de gerenciamento de livraria.
+## 1. Padrão CQRS (Command Query Responsibility Segregation)
 
-- Para acessar a rota simples
-   ```bash
-   php artisan serve
-   ```
-   http://127.0.0.1:8000/hello-world
+- **Objetivo:** Separar as operações de **Escrita (Commands)** das operações de **Leitura (Queries)**.
+- **Demonstração:** O `LivroController` foi totalmente refatorado.
+    - **Escrita (Commands):** As lógicas de `store`, `update` e `destroy` foram movidas do Controller para classes de *Handler* dedicadas (ex: `CreateLivroHandler`, `UpdateLivroHandler`, `DestroyLivroHandler`) localizadas em `app/Core/Livros/Handlers`. Os dados são transportados por *Commands* (DTOs) (ex: `CreateLivroCommand`) localizados em `app/Core/Livros/Commands`.
+    - **Leitura (Queries):** A lógica de `index` (que busca livros e gêneros) foi movida para a classe `ListarLivrosQuery` em `app/Core/Livros/Queries`.
+- **Princípio SOLID Aplicado:** **Single Responsibility Principle (S)**. O `LivroController` agora tem a única responsabilidade de lidar com a requisição HTTP (validação e resposta), enquanto os Handlers e Queries cuidam da lógica de negócio e acesso a dados.
 
-# Etapa 2 - 05/09
+## 2. Padrão Strategy
 
-## Endpoints CRUD com Eloquent ORM
-- Operações completas de **Create, Read, Update e Delete** implementadas para as principais entidades do projeto, incluindo:
-  - **Livros** (com relacionamento a gêneros)
-  - **Cargos** (com funcionários associados)
-  - **Gêneros**, **Setores**, **Movimentações** e outros conforme necessidade
-- Todas as operações interagem com o **banco de dados MySQL** via **Models** e **Controllers**
-- Implementação de relacionamentos entre **Models**:
-  - **Um-para-muitos** (ex: cargo → funcionários, gênero → livros)
-  - **Muitos-para-muitos** quando aplicável (ex: movimentações relacionadas a múltiplos itens)
-- Uso de **Seeders** para popular dados iniciais (ex: `MovimentacoesSeeder`)
+- **Objetivo:** Permitir que um algoritmo varie independentemente dos clientes que o utilizam.
+- **Demonstração:** A lógica de movimentação de estoque foi desacoplada do `MovimentacaoController` e do model `Movimentacao`.
+    - A lógica de `aplicarEstoque` e `reverterEstoque`, que antes estava no *Model*, foi movida para classes de Estratégia concretas: `EntradaStrategy` e `SaidaStrategy`, localizadas em `app/Domain/Movimentacao/Strategies`.
+    - Ambas implementam a interface `MovimentacaoStrategy`.
+    - Um `MovimentacaoContext` e um `MovimentacaoService` são usados para orquestrar e selecionar a estratégia correta (`entrada` ou `saida`) em tempo de execução.
+- **Princípio SOLID Aplicado:** **Open/Closed Principle (O)**. O `MovimentacaoService` está *fechado para modificação*, mas *aberto para extensão*. Podemos adicionar novos tipos de movimentação (ex: `AjusteStrategy`) sem alterar o código do Service ou do Controller.
 
-## Sistema de Autenticação
-- Registro e login de usuários implementados utilizando **Laravel Breeze**
-- Hash de senhas garantido para segurança
-- Restrição de acesso a rotas e funcionalidades para **usuários autenticados** utilizando **Middlewares**
-- Cadastro de funcionários feito apenas por usuários autorizados
-- No primeiro login, o usuário é obrigado a redefinir a senha
-- Campos adicionais integrados ao registro de usuários:
-  - **Cargo**, **Salário**, **Setor**
-- Middleware `ForcarRedefinirSenha` implementado para garantir a redefinição de senha no primeiro acesso
-- `SenhaController` e view `senha-redefinir.blade.php` implementados usando componentes do Breeze
-- Controle de permissões para acesso a rotas e funcionalidades específicas (ex: apenas administradores podem cadastrar setores ou cargos)
+## 3. Padrão Factory Method
 
-## Validação de Dados de Entrada
-- Todas as requisições CRUD possuem validação robusta utilizando as regras do **Laravel Request Validation**
-- Validações incluem:
-  - Tipos de dados (string, integer, float, date)
-  - Limites de tamanho e caracteres
-  - Campos obrigatórios e opcionais
-  - Integridade referencial para relacionamentos
-- Evita inconsistências e garante segurança na entrada de dados do sistema
+- **Objetivo:** Definir uma interface para criar um objeto, mas deixar a "fábrica" decidir qual classe concreta instanciar.
+- **Demonstração:** Foi implementado um sistema de geração de relatórios de Livros (`PDF` e `CSV`), seguindo o exemplo de `ReportFactory`.
+    - A `ReportFactory` (em `app/Domain/Reports/`) possui o método `createReport(string $type)` que centraliza a lógica de criação.
+    - Baseado no `$type`, ela retorna uma instância de `LivroPdfReport` (usando `barryvdh/laravel-dompdf` e uma view Blade) ou `LivroCsvReport`.
+    - Ambas as classes implementam a `ReportInterface`.
+- **Princípio SOLID Aplicado:** O `ReportService` e o `ReportController` dependem da abstração (`ReportInterface`), não de implementações concretas, demonstrando o **Dependency Inversion Principle (D)**.
 
-## Frontend & Componentes
-- Views criadas com **Blade Templates** e **componentes personalizados**:
-  - Ex: `<x-custom-select>` para selects dinâmicos com dados do backend
-  - Avisos de sucesso/erro via `<x-aviso>`
-- Layouts responsivos e reutilizáveis, integrando **TailwindCSS**
-- Implementação de **colapsáveis** para melhor organização visual
-- Campos ocultos e inputs dinâmicos utilizados para transferir dados entre componentes
+## 4. Injeção de Dependência (DI)
 
-## Dashboard e Indicadores
-- Dashboard com gráficos de estoque e movimentações utilizando **Chart.js**
-- Cards de resumo para fácil visualização de métricas importantes
-- Atualização dinâmica de informações via backend
-
-## Movimentações e Estoque
-- Controle completo de movimentações de entrada e saída de itens
-- Regras para ajustar corretamente **quantidade disponível** e **quantidade consumida**:
-  - Ex: ao excluir uma movimentação de saída, a quantidade disponível é ajustada corretamente
-- Relacionamento com usuários responsáveis pelas movimentações
-
-## Testes Automatizados
-- Testes unitários implementados para:
-  - Validação de dados
-  - Funções auxiliares
-  - Regras de negócio básicas
-- Cobertura mínima de testes para endpoints críticos, garantindo estabilidade do sistema
-
-## Observações e Boas Práticas
-- Modelagem inicial adaptada para integração com o **Laravel Breeze**
-- Apenas administradores podem criar contas de funcionários; não há auto-registro
-- Após redefinição de senha, o usuário tem acesso completo ao dashboard e demais funcionalidades protegidas
-- Boas práticas de Laravel aplicadas:
-  - Uso de **Controllers**, **Models**, **Requests** e **Middlewares**
-  - Estrutura de pastas organizada (`app/Models`, `app/Http/Controllers`, `resources/views`)
-  - Uso de **Eloquent ORM** para manter consistência e legibilidade do código
-
+- **Demonstração:** O princípio de Inversão de Dependência foi aplicado em todas as refatorações usando o **Service Container** do Laravel.
+    - Controllers recebem Services, Handlers e Queries via injeção no construtor ou no método (ex: `public function store(..., CreateLivroHandler $handler)`).
+    - Services recebem suas dependências (ex: `ReportService` injeta `ReportFactory`).
+    - Isso desacopla o código e o torna altamente testável.
