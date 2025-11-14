@@ -2,110 +2,126 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\Cargo;
-use App\Models\Setor;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use LogicException;
+use App\Core\Users\Queries\ListarUsuariosQuery;
+use App\Core\Users\Commands\CreateUserCommand;
+use App\Core\Users\Handlers\CreateUserHandler;
+use App\Core\Users\Commands\UpdateUserCommand;
+use App\Core\Users\Handlers\UpdateUserHandler;
+use App\Core\Users\Commands\DestroyUserCommand;
+use App\Core\Users\Handlers\DestroyUserHandler;
 
 class UserController extends Controller
 {
-    public function index()
+    /**
+     * Exibe a lista de usuários e os formulários.
+     *
+     * @param ListarUsuariosQuery $query
+     * @return View
+     */
+    public function index(ListarUsuariosQuery $query): View
     {
-        $users = User::with(['cargo', 'setor'])
-        /*->whereHas('cargo', function($q) {
-                $q->where('nome', '!=', 'Admin');
-                $q->where('nome', '!=', 'Teste');
-            })*/
-        ->get();
+        $data = $query->handle();
 
-        $cargos = Cargo::all();
-        $setores = Setor::all();
-
-        $cargosFiltrados = $cargos->filter(function($c) {
-            return $c->nome !== 'Admin' && $c->nome !== 'Teste'; 
-        });
-
-        $setoresFiltrados = $setores->filter(function($s) {
-            return $s->nome !== 'Admin' && $s->nome !== 'Teste';
-        });
-
-        return view('users.index', compact('users', 'cargosFiltrados', 'setoresFiltrados'));
+        return view('users.index', $data);
     }
 
-    public function store(Request $request): RedirectResponse
+    /**
+     * Valida e armazena um novo usuário no banco de dados.
+     *
+     * @param Request $request
+     * @param CreateUserHandler $handler
+     * @return RedirectResponse
+     */
+    public function store(Request $request, CreateUserHandler $handler): RedirectResponse
     {
-        $request->validate([
+        // 1. Validação
+        $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'cargo_id' => ['required', 'exists:cargos,id'],
-            'setor_id' => ['required', 'exists:setores,id'],
-            'salario' => ['required', 'numeric', 'min:0'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'cargo_id' => ['required', 'integer', 'exists:cargos,id'],
+            'setor_id' => ['required', 'integer', 'exists:setores,id'],
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make('12345678'),
-            'cargo_id' => $request->cargo_id,
-            'cargo_nome' => Cargo::find($request->cargo_id)->nome,
-            'setor_id' => $request->setor_id,
-            'setor_nome' => Setor::find($request->setor_id)->nome,
-            'salario' => $request->salario,
-            'forcar_redefinir_senha' => true,
-        ]);
+        // 2. Cria o Command (DTO)
+        $command = new CreateUserCommand(
+            name: $validated['name'],
+            email: $validated['email'],
+            password: $validated['password'],
+            cargo_id: (int) $validated['cargo_id'],
+            setor_id: (int) $validated['setor_id']
+        );
 
-        event(new Registered($user));
-
-        //Auth::login($user);
+        // 3. Despacha para o Handler
+        $handler($command);
 
         return redirect()->route('users.index')->with('success', 'Usuário criado com sucesso!');
     }
 
-    public function update(Request $request, string $id): RedirectResponse
+    /**
+     * Valida e atualiza um usuário existente.
+     * @param Request $request
+     * @param User $user (Injetado pela Rota-Model-Binding)
+     * @param UpdateUserHandler $handler
+     * @return RedirectResponse
+     */
+    public function update(Request $request, User $user, UpdateUserHandler $handler): RedirectResponse
     {
-        $user = User::findOrFail($id);
-
-        $request->validate([
+        // 1. Validação
+        $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email,'.$user->id],
-            'cargo_id' => ['required', 'exists:cargos,id'],
-            'setor_id' => ['required', 'exists:setores,id'],
-            'salario' => ['required', 'numeric', 'min:0'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class.',email,'.$user->id],
+            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
+            'cargo_id' => ['required', 'integer', 'exists:cargos,id'],
+            'setor_id' => ['required', 'integer', 'exists:setores,id'],
+            'forcar_redefinir_senha' => ['nullable', 'boolean'],
         ]);
 
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'cargo_id' => $request->cargo_id,
-            'cargo_nome' => Cargo::find($request->cargo_id)->nome,
-            'setor_id' => $request->setor_id,
-            'setor_nome' => Setor::find($request->setor_id)->nome,
-            'salario' => $request->salario,
-        ]);
+        // 2. Cria o Command (DTO)
+        $command = new UpdateUserCommand(
+            user: $user,
+            name: $validated['name'],
+            email: $validated['email'],
+            cargo_id: (int) $validated['cargo_id'],
+            setor_id: (int) $validated['setor_id'],
+            forcar_redefinir_senha: $request->has('forcar_redefinir_senha'),
+            password: $validated['password'] // Pode ser nulo
+        );
+
+        // 3. Despacha para o Handler
+        $handler($command);
 
         return redirect()->route('users.index')->with('success', 'Usuário atualizado com sucesso!');
     }
 
-    public function destroy(string $id): RedirectResponse
+    /**
+     * Remove um usuário do banco de dados.
+     * @param User $user (Injetado pela Rota-Model-Binding)
+     * @param DestroyUserHandler $handler
+     * @return RedirectResponse
+     */
+    public function destroy(User $user, DestroyUserHandler $handler): RedirectResponse
     {
-        $user = User::findOrFail($id);
+        try {
+            // 1. Cria o Command (DTO)
+            $command = new DestroyUserCommand(
+                userToDelete: $user,
+                authenticatedUser: request()->user() // Pega o usuário logado
+            );
+            
+            // 2. Despacha para o Handler
+            $handler($command);
 
-        // Proteção: impedir que o admin delete a si mesmo
-        if (auth()->id() === $user->id) {
-            return redirect()->route('users.index')->with('error', 'Você não pode excluir sua própria conta.');
+        } catch (LogicException $e) {
+            // 3. Captura qualquer erro de regra de negócio
+            return redirect()->route('users.index')->with('error', $e->getMessage());
         }
-        if ($user->email === "admin@admin.com") {
-            return redirect()->route('users.index')->with('error', 'Você não pode excluir o usuário admin.');
-        }
-
-        $user->delete();
 
         return redirect()->route('users.index')->with('success', 'Usuário excluído com sucesso!');
     }
