@@ -3,114 +3,84 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Permissao;
-use App\Models\Tela;
-use App\Models\Cargo;
-use App\Models\Setor;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Core\Permissoes\Queries\ListarPermissoesQuery;
+use App\Core\Permissoes\Commands\SincronizarPermissoesCommand;
+use App\Core\Permissoes\Handlers\SincronizarPermissoesHandler;
+use App\Core\Permissoes\Commands\RemoverPermissoesCargoCommand;
+use App\Core\Permissoes\Handlers\RemoverPermissoesCargoHandler;
 
 class PermissaoController extends Controller
 {
-    public function index()
+
+    /**
+     * Exibe a tela de gerenciamento de permissões.
+     *
+     * @param ListarPermissoesQuery $query
+     * @return View
+     */
+    public function index(ListarPermissoesQuery $query): View
     {
-        $permissoes = Permissao::with(['tela', 'cargo', 'setor'])
-            /*->whereHas('cargo', function($q) {
-                $q->where('nome', '!=', 'Admin');
-            })*/
-            ->get();
 
-        $telas = Tela::all();
-        $cargos = Cargo::all();
-        $setores = Setor::all();
+        $data = $query->handle();
 
-        $cargosFiltrados = $cargos->filter(function($c) {
-            return $c->nome !== 'Admin' && $c->nome !== 'Teste'; 
-        });
-
-        $setoresFiltrados = $setores->filter(function($s) {
-            return $s->nome !== 'Admin' && $s->nome !== 'Teste';
-        });
-
-        $telasFiltradas = $telas->filter(function($t) {
-            return $t->nome !== 'Consultar Painel';
-        });
-
-        return view('permissoes.index', compact('permissoes', 'cargosFiltrados', 'setoresFiltrados', 'telasFiltradas'));
+        return view('permissoes.index', $data);
     }
 
-
-    public function create()
+    /**
+     * Sincroniza as permissões (telas) de um cargo.
+     *
+     * @param Request $request
+     * @param SincronizarPermissoesHandler $handler
+     * @return RedirectResponse
+     */
+    public function store(Request $request, SincronizarPermissoesHandler $handler): RedirectResponse
     {
-        $telas = Tela::all();
-        $cargos = Cargo::all();
-        $setores = Setor::all();
-
-        $cargosFiltrados = $cargos->filter(function($c) {
-            return $c->nome !== 'Admin' && $c->nome !== 'Teste'; 
-        });
-
-        $setoresFiltrados = $setores->filter(function($s) {
-            return $s->nome !== 'Admin' && $s->nome !== 'Teste';
-        });
-
-        $telasFiltradas = $telas->filter(function($t) {
-            return $t->nome !== 'Consultar Painel';
-        });
-
-        return view('permissoes.index', compact('telasFiltradas', 'cargosFiltrados', 'setoresFiltrados'));
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'tela_id' => 'required|exists:telas,id',
-            'cargo_id' => 'required|exists:cargos,id',
-            'setor_id' => [
-                'required',
-                'exists:setores,id',
-                function ($attribute, $value, $fail) use ($request) {
-                    $exists = \App\Models\Permissao::where('tela_id', $request->tela_id)
-                        ->where('cargo_id', $request->cargo_id)
-                        ->where('setor_id', $request->setor_id)
-                        ->exists();
-
-                    if ($exists) {
-                        $fail('Essa permissão já existe para esta tela, cargo e setor.');
-                    }
-                },
-            ],
+        // Validação
+        $validated = $request->validate([
+            'cargo_id' => 'required|integer|exists:cargos,id',
+            'telas' => 'nullable|array',
+            'telas.*' => 'integer|exists:telas,id',
         ]);
 
-        Permissao::create($request->only('tela_id', 'cargo_id', 'setor_id'));
+        // Se nenhum checkbox for marcado, 'telas' será nulo
+        $telas = $validated['telas'] ?? [];
 
-        $telasComExtras = [1];
+        // Cria o Command (DTO) para transportar os dados
+        $command = new SincronizarPermissoesCommand(
+            cargoId: (int) $validated['cargo_id'],
+            telas: $telas
+        );
 
-        if ($request->tela_id >= 2 && $request->tela_id <= 11) {
-        foreach ($telasComExtras as $telaExtraId) {
-            // Checa se já existe para não duplicar
-            $exists = \App\Models\Permissao::where('tela_id', $telaExtraId)
-                ->where('cargo_id', $request->cargo_id)
-                ->where('setor_id', $request->setor_id)
-                ->exists();
+        // O Handler executa a lógica de sincronização
+        $handler($command);
 
-            if (!$exists) {
-                Permissao::create([
-                    'tela_id' => $telaExtraId,
-                    'cargo_id' => $request->cargo_id,
-                    'setor_id' => $request->setor_id,
-                ]);
-            }
-        }
+        return redirect()->route('permissoes.index')->with('success', 'Permissões atualizadas com sucesso!');
     }
 
-        return redirect()->route('permissoes.index')->with('success', 'Permissão criada!');
-    }
-    
-    public function destroy($id)
+    /**
+     * Remove todas as permissões de um cargo específico.
+     *
+     * @param string $id
+     * @param RemoverPermissoesCargoHandler $handler
+     * @return RedirectResponse
+     */
+    public function destroy(string $id, RemoverPermissoesCargoHandler $handler): RedirectResponse
     {
-        $permissao = Permissao::findOrFail($id);
-        $permissao->delete();
+        // Cria o Command (DTO) com o ID vindo da rota
+        $command = new RemoverPermissoesCargoCommand(cargoId: (int) $id);
 
-        return redirect()->route('permissoes.index')
-                        ->with('success', 'Permissão excluída com sucesso!');
+        try {
+            // O Handler executa a lógica de remoção
+            $handler($command);
+
+        } catch (ModelNotFoundException $e) {
+            // Se o Handler não encontrar o cargo, o Controller trata o erro HTTP
+            return redirect()->route('permissoes.index')->with('error', 'Cargo não encontrado.');
+        }
+
+        return redirect()->route('permissoes.index')->with('success', 'Permissões removidas com sucesso!');
     }
 }
