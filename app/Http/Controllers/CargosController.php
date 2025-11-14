@@ -1,63 +1,79 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Cargo;
+
+use App\Models\Cargo; // Route-Model-Binding
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
+use LogicException; // Para capturar erros de negócio
+use App\Core\Cargos\Queries\ListarCargosQuery;
+use App\Core\Cargos\Commands\CreateCargoCommand;
+use App\Core\Cargos\Handlers\CreateCargoHandler;
+use App\Core\Cargos\Commands\DestroyCargoCommand;
+use App\Core\Cargos\Handlers\DestroyCargoHandler;
 
+/**
+ * Controller para o CRUD de Cargos.
+ */
 class CargosController extends Controller
 {
-    public function index()
+    /**
+     * Exibe a lista de cargos.
+     *
+     * @param ListarCargosQuery $query
+     * @return View
+     */
+    public function index(ListarCargosQuery $query): View
     {
-        $cargos = Cargo::all();
-        //$cargos = Cargo::whereNotIn('nome', ['Admin', 'Teste'])->get();
-        return view('cargos.index', compact('cargos'));
+        $data = $query->handle();
+
+        return view('cargos.index', $data);
     }
 
-    public function store(Request $request): RedirectResponse
+    /**
+     * Valida e armazena um novo cargo.
+     * @param Request $request
+     * @param CreateCargoHandler $handler
+     * @return RedirectResponse
+     */
+    public function store(Request $request, CreateCargoHandler $handler): RedirectResponse
     {
-        $request->validate([
-            'nome' => [
-                'required',
-                'string',
-                'max:100',
-                function ($attribute, $value, $fail) {
-                    if (\App\Models\Cargo::where('nome', $value)->exists()) {
-                        $fail('Já existe um cargo com esse nome.');
-                    }
-                },
-            ],
-            'descricao' => ['nullable', 'string'],
+        $validated = $request->validate([
+            'cargo' => 'required|string|max:100|unique:cargos,cargo',
+            'salario' => 'required|numeric|min:0',
         ]);
 
-        Cargo::create([
-            'nome' => $request->nome,
-            'descricao' => $request->descricao,
-        ]);
+        $command = new CreateCargoCommand(
+            cargo: $validated['cargo'],
+            salario: (float) $validated['salario']
+        );
+
+        $handler($command);
 
         return redirect()->route('cargos.index')->with('success', 'Cargo criado com sucesso!');
     }
 
-    public function destroy($id): RedirectResponse
+    /**
+     * Remove um cargo existente.
+     * @param Cargo $cargo (Injetado pela Rota-Model-Binding)
+     * @param DestroyCargoHandler $handler
+     * @return RedirectResponse
+     */
+    public function destroy(Cargo $cargo, DestroyCargoHandler $handler): RedirectResponse
     {
-        $cargo = Cargo::findOrFail($id);
-        if ($cargo->users()->exists()) {
-            return redirect()
-                ->route('cargos.index')
-                ->with('error', 'Não é possível excluir este cargo, pois existem usuários vinculados a ele.');
+        try {
+            // O Command transporta o modelo a ser excluído
+            $command = new DestroyCargoCommand(cargo: $cargo);
+            
+            // O Handler executa a verificação e a exclusão
+            $handler($command);
+
+        } catch (LogicException $e) {
+            // Captura o erro de negócio (ex: "Cargo possui usuários")
+            return redirect()->route('cargos.index')->with('error', $e->getMessage());
         }
 
-        if ($cargo->permissoes()->exists()) {
-            return redirect()
-                ->route('cargos.index')
-                ->with('error', 'Não é possível excluir este cargo, pois existem permissões vinculadas a ele.');
-        }
-
-        $cargo->delete();
-
-        return redirect()
-            ->route('cargos.index')
-            ->with('success', 'Cargo excluído com sucesso!');
+        return redirect()->route('cargos.index')->with('success', 'Cargo excluído com sucesso!');
     }
-
 }
