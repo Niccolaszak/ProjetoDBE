@@ -7,7 +7,7 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Gerenciar Livros
             </h2>
-            @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'livros.store'))
+            @can('create', App\Models\Livro::class)
                 <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'novo-livro')">
                     Novo Livro
                 </x-primary-button>
@@ -66,7 +66,7 @@
                         </div>
                     </form>
                 </x-modal>
-            @endif
+            @endcan
         </div>
     </x-slot>
     <div class="overflow-x-auto p-6">
@@ -93,112 +93,112 @@
                         <td class="px-4 py-2">{{ $livro->titulo}}</td>
                         <td class="px-4 py-2">{{ $livro->autor}}</td>
                         <td class="px-4 py-2">{{ $livro->genero->genero}}</td>
-                        @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'livros.store'))
-                        <td>
-                            <!-- Botão Editar -->
-                            <x-secondary-button class="px-1 py-0.5 text-xs"
-                                x-data=""
-                                x-on:click.prevent="$dispatch('open-modal', 'confirm-livro-edit-{{ $livro->id }}')">
-                                Editar
-                            </x-secondary-button>
+                        @can('update', $livro)
+                            <td>
+                                <!-- Botão Editar -->
+                                <x-secondary-button class="px-1 py-0.5 text-xs"
+                                    x-data=""
+                                    x-on:click.prevent="$dispatch('open-modal', 'confirm-livro-edit-{{ $livro->id }}')">
+                                    Editar
+                                </x-secondary-button>
 
-                            <!-- Modal de Edição -->
-                            <x-modal name="confirm-livro-edit-{{ $livro->id }}" focusable>
-                                <div class="flex justify-center mt-6">
-                                    <div class="w-full max-w-2xl bg-white shadow-md rounded-lg p-6">
-                                        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                                            Editar Livro
+                                <!-- Modal de Edição -->
+                                <x-modal name="confirm-livro-edit-{{ $livro->id }}" focusable>
+                                    <div class="flex justify-center mt-6">
+                                        <div class="w-full max-w-2xl bg-white shadow-md rounded-lg p-6">
+                                            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                                                Editar Livro
+                                            </h2>
+                                            <form method="POST" action="{{ route('livros.update', $livro->id) }}" class="space-y-6">
+                                                @csrf
+                                                @method('PUT')
+
+                                                <!-- Título -->
+                                                <div>
+                                                    <x-input-label for="titulo" :value="__('Título')" />
+                                                    <x-text-input id="titulo" class="block mt-1 w-full"
+                                                        type="text" name="titulo"
+                                                        :value="old('titulo', $livro->titulo)" required autofocus />
+                                                    <x-input-error :messages="$errors->get('titulo')" class="mt-2" />
+                                                </div>
+
+                                                <!-- Autor -->
+                                                <div>
+                                                    <x-input-label for="autor" :value="__('Autor')" />
+                                                    <x-text-input id="autor" class="block mt-1 w-full"
+                                                        type="text" name="autor"
+                                                        :value="old('autor', $livro->autor)" required />
+                                                    <x-input-error :messages="$errors->get('autor')" class="mt-2" />
+                                                </div>
+
+                                                <!-- Gênero -->
+                                                <div>
+                                                    <x-custom-select
+                                                        name="genero_id"
+                                                        :options="$generosOptions"
+                                                        :label="'Gênero'"
+                                                        :placeholder="'-- Selecione o gênero --'"
+                                                        :selected="old('genero_id', $livro->genero_id)"
+                                                    />                                                
+                                                    <x-input-error :messages="$errors->get('genero_id')" class="mt-2" />
+                                                </div>
+
+                                                <!-- Descrição -->
+                                                <div>
+                                                    <x-input-label for="descricao_livro" :value="__('Descrição')" />
+                                                    <x-text-area id="descricao_livro" name="descricao_livro" class="mt-1 block w-full" rows="3" required>{{ old('descricao_livro', $livro->descricao_livro) }}</x-text-area>
+                                                    <x-input-error :messages="$errors->get('descricao_livro')" class="mt-2" />
+                                                </div>
+
+                                                <!-- Botões -->
+                                                <div class="flex justify-between items-center mt-6">
+                                                    <x-secondary-button @click="$dispatch('close')" type="button">
+                                                        ← Fechar
+                                                    </x-secondary-button>
+
+                                                    <x-primary-button type="submit">
+                                                        Salvar
+                                                    </x-primary-button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </x-modal>
+                            </td>
+                            <td>
+                                <x-secondary-button class="px-1 py-0.5 text-xs"
+                                    x-data=""
+                                    x-on:click.prevent="$dispatch('open-modal', 'confirm-livro-deletion-{{ $livro->id }}')"
+                                >
+                                    Excluir
+                                </x-secondary-button>
+
+                                <x-modal name="confirm-livro-deletion-{{ $livro->id }}" focusable>
+                                    <form method="POST" action="{{ route('livros.destroy', $livro->id) }}" class="p-6">
+                                        @csrf
+                                        @method('DELETE')
+
+                                        <h2 class="text-lg font-medium text-gray-900">
+                                            Tem certeza que deseja excluir este livro?
                                         </h2>
-                                        <form method="POST" action="{{ route('livros.update', $livro->id) }}" class="space-y-6">
-                                            @csrf
-                                            @method('PUT')
 
-                                            <!-- Título -->
-                                            <div>
-                                                <x-input-label for="titulo" :value="__('Título')" />
-                                                <x-text-input id="titulo" class="block mt-1 w-full"
-                                                    type="text" name="titulo"
-                                                    :value="old('titulo', $livro->titulo)" required autofocus />
-                                                <x-input-error :messages="$errors->get('titulo')" class="mt-2" />
-                                            </div>
+                                        <p class="mt-1 text-sm text-gray-600">
+                                            Esta ação é permanente e não poderá ser desfeita.
+                                        </p>
 
-                                            <!-- Autor -->
-                                            <div>
-                                                <x-input-label for="autor" :value="__('Autor')" />
-                                                <x-text-input id="autor" class="block mt-1 w-full"
-                                                    type="text" name="autor"
-                                                    :value="old('autor', $livro->autor)" required />
-                                                <x-input-error :messages="$errors->get('autor')" class="mt-2" />
-                                            </div>
+                                        <div class="mt-6 flex justify-end">
+                                            <x-secondary-button x-on:click="$dispatch('close')">
+                                                Cancelar
+                                            </x-secondary-button>
 
-                                            <!-- Gênero -->
-                                            <div>
-                                                <x-custom-select
-                                                    name="genero_id"
-                                                    :options="$generosOptions"
-                                                    :label="'Gênero'"
-                                                    :placeholder="'-- Selecione o gênero --'"
-                                                    :selected="old('genero_id', $livro->genero_id)"
-                                                />                                                
-                                                <x-input-error :messages="$errors->get('genero_id')" class="mt-2" />
-                                            </div>
-
-                                            <!-- Descrição -->
-                                            <div>
-                                                <x-input-label for="descricao_livro" :value="__('Descrição')" />
-                                                <x-text-area id="descricao_livro" name="descricao_livro" class="mt-1 block w-full" rows="3" required>{{ old('descricao_livro', $livro->descricao_livro) }}</x-text-area>
-                                                <x-input-error :messages="$errors->get('descricao_livro')" class="mt-2" />
-                                            </div>
-
-                                            <!-- Botões -->
-                                            <div class="flex justify-between items-center mt-6">
-                                                <x-secondary-button @click="$dispatch('close')" type="button">
-                                                    ← Fechar
-                                                </x-secondary-button>
-
-                                                <x-primary-button type="submit">
-                                                    Salvar
-                                                </x-primary-button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </x-modal>
-                        </td>
-                        <td>
-                            <x-secondary-button class="px-1 py-0.5 text-xs"
-                                x-data=""
-                                x-on:click.prevent="$dispatch('open-modal', 'confirm-livro-deletion-{{ $livro->id }}')"
-                            >
-                                Excluir
-                            </x-secondary-button>
-
-                            <x-modal name="confirm-livro-deletion-{{ $livro->id }}" focusable>
-                                <form method="POST" action="{{ route('livros.destroy', $livro->id) }}" class="p-6">
-                                    @csrf
-                                    @method('DELETE')
-
-                                    <h2 class="text-lg font-medium text-gray-900">
-                                        Tem certeza que deseja excluir este livro?
-                                    </h2>
-
-                                    <p class="mt-1 text-sm text-gray-600">
-                                        Esta ação é permanente e não poderá ser desfeita.
-                                    </p>
-
-                                    <div class="mt-6 flex justify-end">
-                                        <x-secondary-button x-on:click="$dispatch('close')">
-                                            Cancelar
-                                        </x-secondary-button>
-
-                                        <x-danger-button class="ms-3">
-                                            Excluir
-                                        </x-danger-button>
-                                    </div>
-                                </form>
-                            </x-modal>
-                        </td>
-                        @endif
+                                            <x-danger-button class="ms-3">
+                                                Excluir
+                                            </x-danger-button>
+                                        </div>
+                                    </form>
+                                </x-modal>
+                            </td>
+                        @endcan
 
                         <x-modal name="show-livro-{{ $livro->id }}" focusable>
                             <div class="p-6">

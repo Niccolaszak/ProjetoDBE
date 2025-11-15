@@ -18,14 +18,14 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
-                @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'painel'))
+                @can('Consultar Painel')
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                         <x-nav-link :href="route('painel')" 
                                     :active="request()->routeIs('painel')">
                             {{ __('Painel de Controle') }}
                         </x-nav-link>
                     </div>
-                @endif
+                @endcan
 
             </div>
 
@@ -45,7 +45,7 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'profile.edit'))
+                        @can('Editar Perfil')
                             <x-dropdown-link :href="route('profile.edit')">
                                 {{ __('Configurações de Perfil') }}
                             </x-dropdown-link>
@@ -53,7 +53,7 @@
                             <x-dropdown-link :href="route('profile.index')">
                                 {{ __('Consultar Perfil') }}
                             </x-dropdown-link>
-                        @endif
+                        @endcan
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf

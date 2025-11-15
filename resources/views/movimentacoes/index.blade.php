@@ -7,130 +7,129 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Movimentações
             </h2>
-            @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'movimentacoes.store'))
-            <!-- Botão para abrir modal -->
-            <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'nova-movimentacao')">
-                Nova Movimentação
-            </x-primary-button>
-            <!-- Modal -->
-            <x-modal name="nova-movimentacao" :show="false" focusable>
-            <form action="{{ route('movimentacoes.store') }}" method="POST" class="p-6 space-y-6">
-                @csrf
-
-                <h2 class="text-lg font-medium text-gray-900">
+            @can('create', App\Models\Movimentacao::class)
+                <!-- Botão para abrir modal -->
+                <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'nova-movimentacao')">
                     Nova Movimentação
-                </h2>
+                </x-primary-button>
+                <!-- Modal -->
+                <x-modal name="nova-movimentacao" :show="false" focusable>
+                    <form action="{{ route('movimentacoes.store') }}" method="POST" class="p-6 space-y-6">
+                        @csrf
 
-                <!-- Seleção de Livro -->
-                <div class="mt-4">
-                    <x-custom-select
-                        name="livro_id"
-                        :options="$livrosOptions"
-                        label="Livro"
-                        placeholder="-- Selecione o livro --"
-                    />
-                    <x-input-error :messages="$errors->get('livro_id')" class="mt-2" />
-                </div>
+                        <h2 class="text-lg font-medium text-gray-900">
+                            Nova Movimentação
+                        </h2>
 
-                <!-- Quantidade -->
-                <div class="mt-4">
-                    <x-input-label for="quantidade" :value="__('Quantidade')" />
-                    <x-text-input id="quantidade" name="quantidade" type="number" min="1" class="mt-1 block w-full" required />
-                    <x-input-error :messages="$errors->get('quantidade')" class="mt-2" />
-                </div>
+                        <!-- Seleção de Livro -->
+                        <div class="mt-4">
+                            <x-custom-select
+                                name="livro_id"
+                                :options="$livrosOptions"
+                                label="Livro"
+                                placeholder="-- Selecione o livro --"
+                            />
+                            <x-input-error :messages="$errors->get('livro_id')" class="mt-2" />
+                        </div>
 
-                <!-- Tipo (Entrada/Saída) -->
-                <div class="mt-4">
-                    <x-custom-select
-                        name="tipo"
-                        :options="collect([
-                            (object)['id' => 'entrada', 'nome' => 'Entrada'],
-                            (object)['id' => 'saida', 'nome' => 'Saída']
-                        ])"
-                        label="Tipo de Movimentação"
-                        placeholder="-- Selecione o tipo --"
-                    />
-                    <x-input-error :messages="$errors->get('tipo')" class="mt-2" />
-                </div>
+                        <!-- Quantidade -->
+                        <div class="mt-4">
+                            <x-input-label for="quantidade" :value="__('Quantidade')" />
+                            <x-text-input id="quantidade" name="quantidade" type="number" min="1" class="mt-1 block w-full" required />
+                            <x-input-error :messages="$errors->get('quantidade')" class="mt-2" />
+                        </div>
 
-                <!-- Tipo de Relacionamento -->
-                <div x-data="{ tipoRelacionamento: '{{ old('tipo_relacionamento') ?? '' }}' }"
-                    @input.window="if($event.detail.name === 'tipo_relacionamento') tipoRelacionamento = $event.detail.value">
+                        <!-- Tipo (Entrada/Saída) -->
+                        <div class="mt-4">
+                            <x-custom-select
+                                name="tipo"
+                                :options="collect([
+                                    (object)['id' => 'entrada', 'nome' => 'Entrada'],
+                                    (object)['id' => 'saida', 'nome' => 'Saída']
+                                ])"
+                                label="Tipo de Movimentação"
+                                placeholder="-- Selecione o tipo --"
+                            />
+                            <x-input-error :messages="$errors->get('tipo')" class="mt-2" />
+                        </div>
 
-                    <x-custom-select
-                        name="tipo_relacionamento"
-                        :options="collect([
-                            (object)['id' => 'fornecedor', 'nome' => 'Fornecedor'],
-                            (object)['id' => 'cliente', 'nome' => 'Cliente']
-                        ])"
-                        label="Tipo de Relacionamento"
-                        placeholder="-- Selecione --"
-                    />
-                    <x-input-error :messages="$errors->get('tipo_relacionamento')" class="mt-2" />
+                        <!-- Tipo de Relacionamento -->
+                        <div x-data="{ tipoRelacionamento: '{{ old('tipo_relacionamento') ?? '' }}' }"
+                            @input.window="if($event.detail.name === 'tipo_relacionamento') tipoRelacionamento = $event.detail.value">
 
-                    <!-- Fornecedor -->
-                    <div x-show="tipoRelacionamento === 'fornecedor'" class="mt-4">
-                        <x-custom-select
-                            name="relacionamento_id"
-                            :options="$fornecedoresOptions"
-                            label="Fornecedor"
-                            placeholder="-- Selecione o fornecedor --"
-                        />
-                        <x-input-error :messages="$errors->get('relacionamento_id')" class="mt-2" />
-                    </div>
+                            <x-custom-select
+                                name="tipo_relacionamento"
+                                :options="collect([
+                                    (object)['id' => 'fornecedor', 'nome' => 'Fornecedor'],
+                                    (object)['id' => 'cliente', 'nome' => 'Cliente']
+                                ])"
+                                label="Tipo de Relacionamento"
+                                placeholder="-- Selecione --"
+                            />
+                            <x-input-error :messages="$errors->get('tipo_relacionamento')" class="mt-2" />
 
-                    <!-- Cliente -->
-                    <div x-show="tipoRelacionamento === 'cliente'" class="space-y-2 mt-4">
-                        <x-input-label for="nome_contato" :value="'Nome do Cliente'" />
-                        <x-text-input
-                            id="nome_contato"
-                            name="nome_contato"
-                            type="text"
-                            x-bind:required="tipoRelacionamento === 'cliente'"
-                            x-bind:disabled="tipoRelacionamento !== 'cliente'"
-                            class="mt-1 block w-full"
-                            value="{{ old('nome_contato') }}"
-                        />
-                        <x-input-error :messages="$errors->get('nome_contato')" class="mt-2" />
+                            <!-- Fornecedor -->
+                            <div x-show="tipoRelacionamento === 'fornecedor'" class="mt-4">
+                                <x-custom-select
+                                    name="relacionamento_id"
+                                    :options="$fornecedoresOptions"
+                                    label="Fornecedor"
+                                    placeholder="-- Selecione o fornecedor --"
+                                />
+                                <x-input-error :messages="$errors->get('relacionamento_id')" class="mt-2" />
+                            </div>
 
-                        <x-input-label for="telefone_contato" :value="'Telefone do Cliente'" />
-                        <x-text-input
-                            id="telefone_contato"
-                            name="telefone_contato"
-                            type="text"
-                            x-bind:required="tipoRelacionamento === 'cliente'"
-                            x-bind:disabled="tipoRelacionamento !== 'cliente'"
-                            class="mt-1 block w-full"
-                            value="{{ old('telefone_contato') }}"
-                        />
-                        <x-input-error :messages="$errors->get('telefone_contato')" class="mt-2" />
-                    </div>
-                </div>
+                            <!-- Cliente -->
+                            <div x-show="tipoRelacionamento === 'cliente'" class="space-y-2 mt-4">
+                                <x-input-label for="nome_contato" :value="'Nome do Cliente'" />
+                                <x-text-input
+                                    id="nome_contato"
+                                    name="nome_contato"
+                                    type="text"
+                                    x-bind:required="tipoRelacionamento === 'cliente'"
+                                    x-bind:disabled="tipoRelacionamento !== 'cliente'"
+                                    class="mt-1 block w-full"
+                                    value="{{ old('nome_contato') }}"
+                                />
+                                <x-input-error :messages="$errors->get('nome_contato')" class="mt-2" />
 
-                <!-- Campo oculto do responsável -->
-                <input type="hidden" name="responsavel" value="{{ auth()->user()->id }}" />
+                                <x-input-label for="telefone_contato" :value="'Telefone do Cliente'" />
+                                <x-text-input
+                                    id="telefone_contato"
+                                    name="telefone_contato"
+                                    type="text"
+                                    x-bind:required="tipoRelacionamento === 'cliente'"
+                                    x-bind:disabled="tipoRelacionamento !== 'cliente'"
+                                    class="mt-1 block w-full"
+                                    value="{{ old('telefone_contato') }}"
+                                />
+                                <x-input-error :messages="$errors->get('telefone_contato')" class="mt-2" />
+                            </div>
+                        </div>
 
-                <!-- Observação -->
-                <div class="mt-4">
-                    <x-input-label for="observacao" :value="__('Observação')" />
-                    <x-text-area id="observacao" name="observacao" rows="3" class="mt-1 block w-full">{{ old('observacao') }}</x-text-area>
-                    <x-input-error :messages="$errors->get('observacao')" class="mt-2" />
-                </div>
+                        <!-- Campo oculto do responsável -->
+                        <input type="hidden" name="responsavel" value="{{ auth()->user()->id }}" />
 
-                <!-- Botões -->
-                <div class="flex justify-end gap-4 mt-6">
-                    <x-secondary-button x-on:click="$dispatch('close')" type="button">
-                        Cancelar
-                    </x-secondary-button>
+                        <!-- Observação -->
+                        <div class="mt-4">
+                            <x-input-label for="observacao" :value="__('Observação')" />
+                            <x-text-area id="observacao" name="observacao" rows="3" class="mt-1 block w-full">{{ old('observacao') }}</x-text-area>
+                            <x-input-error :messages="$errors->get('observacao')" class="mt-2" />
+                        </div>
 
-                    <x-primary-button type="submit">
-                        Salvar
-                    </x-primary-button>
-                </div>
-            </form>
-        </x-modal>
+                        <!-- Botões -->
+                        <div class="flex justify-end gap-4 mt-6">
+                            <x-secondary-button x-on:click="$dispatch('close')" type="button">
+                                Cancelar
+                            </x-secondary-button>
 
-            @endif
+                            <x-primary-button type="submit">
+                                Salvar
+                            </x-primary-button>
+                        </div>
+                    </form>
+                </x-modal>
+            @endcan
         </div>
     </x-slot>
 
@@ -160,48 +159,48 @@
             <tbody>
                 @foreach($movimentacoes as $mov)
                     <tr class="border-b border-gray-200 hover:bg-gray-50 cursor-pointer" x-data 
-                    @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'movimentacoes.store'))
-                    x-on:dblclick="$dispatch('open-modal', 'show-mov-{{ $mov->id }}')"
-                    @endif>
+                    @can('create', App\Models\Movimentacao::class)
+                        x-on:dblclick="$dispatch('open-modal', 'show-mov-{{ $mov->id }}')"
+                    @endcan>
                         <td class="px-4 py-2">{{ $mov->livro->titulo }}</td>
                         <td class="px-4 py-2">{{ ucfirst($mov->tipo) }}</td>
                         <td class="px-4 py-2">{{ $mov->quantidade }}</td>
                         <td class="px-4 py-2">{{ $mov->user->name ?? 'Desconhecido' }}</td>
-                        @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'movimentacoes.store'))
-                        <td>
-                            <x-secondary-button class="px-1 py-0.5 text-xs"
-                                x-data=""
-                                x-on:click.prevent="$dispatch('open-modal', 'confirm-movimentacao-deletion-{{ $mov->id }}')"
-                            >
-                                Excluir
-                            </x-secondary-button>
+                        @can('delete', $mov)
+                            <td>
+                                <x-secondary-button class="px-1 py-0.5 text-xs"
+                                    x-data=""
+                                    x-on:click.prevent="$dispatch('open-modal', 'confirm-movimentacao-deletion-{{ $mov->id }}')"
+                                >
+                                    Excluir
+                                </x-secondary-button>
 
-                            <x-modal name="confirm-movimentacao-deletion-{{ $mov->id }}" focusable>
-                                <form method="POST" action="{{ route('movimentacoes.destroy', $mov->id) }}" class="p-6">
-                                    @csrf
-                                    @method('DELETE')
+                                <x-modal name="confirm-movimentacao-deletion-{{ $mov->id }}" focusable>
+                                    <form method="POST" action="{{ route('movimentacoes.destroy', $mov->id) }}" class="p-6">
+                                        @csrf
+                                        @method('DELETE')
 
-                                    <h2 class="text-lg font-medium text-gray-900">
-                                        Tem certeza que deseja excluir esta movimentação?
-                                    </h2>
+                                        <h2 class="text-lg font-medium text-gray-900">
+                                            Tem certeza que deseja excluir esta movimentação?
+                                        </h2>
 
-                                    <p class="mt-1 text-sm text-gray-600">
-                                        Esta ação é permanente e não poderá ser desfeita.
-                                    </p>
+                                        <p class="mt-1 text-sm text-gray-600">
+                                            Esta ação é permanente e não poderá ser desfeita.
+                                        </p>
 
-                                    <div class="mt-6 flex justify-end">
-                                        <x-secondary-button x-on:click="$dispatch('close')">
-                                            Cancelar
-                                        </x-secondary-button>
+                                        <div class="mt-6 flex justify-end">
+                                            <x-secondary-button x-on:click="$dispatch('close')">
+                                                Cancelar
+                                            </x-secondary-button>
 
-                                        <x-danger-button class="ms-3">
-                                            Excluir
-                                        </x-danger-button>
-                                    </div>
-                                </form>
-                            </x-modal>
-                        </td>
-                        @endif
+                                            <x-danger-button class="ms-3">
+                                                Excluir
+                                            </x-danger-button>
+                                        </div>
+                                    </form>
+                                </x-modal>
+                            </td>
+                        @endcan
                         <x-modal name="confirm-movimentacao-deletion-{{ $mov->id }}" focusable>
                             <form method="POST" action="{{ route('movimentacoes.destroy', $mov->id) }}" class="p-6">
                                 @csrf

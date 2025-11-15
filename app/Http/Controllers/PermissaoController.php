@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Permissao;
 use App\Models\Cargo;
+use App\Models\Setor;
 use App\Models\Tela;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;

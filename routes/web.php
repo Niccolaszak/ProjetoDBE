@@ -34,7 +34,9 @@ Route::middleware(['auth', ForcarRedefinirSenha::class])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
-    Route::get('/painel', fn() => view('painelControle'))->name('painel');
+    Route::get('/painel', fn() => view('painelControle'))
+         ->middleware('can:Consultar Painel')
+         ->name('painel');
 
     Route::prefix('profile')->group(function () {
             Route::get('/', [ProfileController::class, 'index'])->name('profile.index');

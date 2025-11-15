@@ -7,7 +7,7 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Gerenciar Permissões
             </h2>
-            @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'permissoes.store'))
+            @can('create', App\Models\Permissao::class)
                 <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'nova-permissao')">
                     Nova Permissão
                 </x-primary-button>
@@ -40,7 +40,7 @@
                         </div>
                     </form>
                 </x-modal>
-            @endif
+            @endcan
         </div>
     </x-slot>
 
@@ -69,41 +69,41 @@
                         <td class="px-4 py-2">{{ $p->tela->nome }}</td>
                         <td class="px-4 py-2">{{ $p->cargo->nome }}</td>
                         <td class="px-4 py-2">{{ $p->setor->nome }}</td>
-                        @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'permissoes.store'))
-                        <td>
-                            <x-secondary-button class="px-1 py-0.5 text-xs"
-                                x-data=""
-                                x-on:click.prevent="$dispatch('open-modal', 'confirm-permissao-deletion-{{ $p->id }}')"
-                            >
-                                Excluir
-                            </x-secondary-button>
+                        @can('delete', $p)
+                            <td>
+                                <x-secondary-button class="px-1 py-0.5 text-xs"
+                                    x-data=""
+                                    x-on:click.prevent="$dispatch('open-modal', 'confirm-permissao-deletion-{{ $p->id }}')"
+                                >
+                                    Excluir
+                                </x-secondary-button>
 
-                            <x-modal name="confirm-permissao-deletion-{{ $p->id }}" focusable>
-                                <form method="POST" action="{{ route('permissoes.destroy', $p->id) }}" class="p-6">
-                                    @csrf
-                                    @method('DELETE')
+                                <x-modal name="confirm-permissao-deletion-{{ $p->id }}" focusable>
+                                    <form method="POST" action="{{ route('permissoes.destroy', $p->id) }}" class="p-6">
+                                        @csrf
+                                        @method('DELETE')
 
-                                    <h2 class="text-lg font-medium text-gray-900">
-                                        Tem certeza que deseja excluir esta permissão?
-                                    </h2>
+                                        <h2 class="text-lg font-medium text-gray-900">
+                                            Tem certeza que deseja excluir esta permissão?
+                                        </h2>
 
-                                    <p class="mt-1 text-sm text-gray-600">
-                                        Esta ação é permanente e não poderá ser desfeita.
-                                    </p>
+                                        <p class="mt-1 text-sm text-gray-600">
+                                            Esta ação é permanente e não poderá ser desfeita.
+                                        </p>
 
-                                    <div class="mt-6 flex justify-end">
-                                        <x-secondary-button x-on:click="$dispatch('close')">
-                                            Cancelar
-                                        </x-secondary-button>
+                                        <div class="mt-6 flex justify-end">
+                                            <x-secondary-button x-on:click="$dispatch('close')">
+                                                Cancelar
+                                            </x-secondary-button>
 
-                                        <x-danger-button class="ms-3">
-                                            Excluir
-                                        </x-danger-button>
-                                    </div>
-                                </form>
-                            </x-modal>
-                        </td>
-                        @endif
+                                            <x-danger-button class="ms-3">
+                                                Excluir
+                                            </x-danger-button>
+                                        </div>
+                                    </form>
+                                </x-modal>
+                            </td>
+                        @endcan
                     </tr>
                 @endforeach
             </tbody>

@@ -7,7 +7,7 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Gerenciar Fornecedores
             </h2>
-            @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'fornecedores.store'))
+            @can('create', App\Models\Fornecedor::class)
                 <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'novo-fornecedor')">
                     Novo Fornecedor
                 </x-primary-button>
@@ -102,7 +102,7 @@
                         </div>
                     </form>
                 </x-modal>
-            @endif
+            @endcan
         </div>
     </x-slot>
 
@@ -176,7 +176,7 @@
                         <td class="px-4 py-2">{{ $f->pix }}</td>
                         <td class="px-4 py-2">{{ $f->conta_corrente }}</td>
                         <td class="px-4 py-2">{{ $f->agencia }}</td>
-                        @if(app(\App\Services\PermissaoService::class)->podeAcessarRota(auth()->user(), 'fornecedores.store'))
+                        @can('update', $f)
                             <td class="px-4 py-2 flex gap-2">
                                 <!-- Botões Editar / Excluir -->
                                 <x-secondary-button class="px-1 py-0.5 text-xs"
@@ -314,7 +314,7 @@
                                     </form>
                                 </x-modal>
                             </td>
-                        @endif
+                        @endcan
                     </tr>
                 @endforeach
             </tbody>
