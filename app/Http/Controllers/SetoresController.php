@@ -2,76 +2,63 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Setor; // Route-Model-Binding
+use App\Models\Setor;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
-use LogicException; // Para capturar erros de negócio
-use App\Core\Setores\Queries\ListarSetoresQuery;
-use App\Core\Setores\Commands\CreateSetorCommand;
-use App\Core\Setores\Handlers\CreateSetorHandler;
-use App\Core\Setores\Commands\DestroySetorCommand;
-use App\Core\Setores\Handlers\DestroySetorHandler;
 
-/**
- * Controller para o CRUD de Setores.
- */
 class SetoresController extends Controller
 {
-    /**
-     * Exibe a lista de setores.
-     *
-     * @param ListarSetoresQuery $query
-     * @return View
-     */
-    public function index(ListarSetoresQuery $query): View
+    public function index()
     {
-        $data = $query->handle();
-
-        return view('setores.index', $data);
+        $setores = Setor::all();
+        //$setores = Setor::whereNotIn('nome', ['Admin', 'Teste'])->get();
+        return view('setores.index', compact('setores'));
     }
 
-    /**
-     * Valida e armazena um novo setor.
-     * @param Request $request
-     * @param CreateSetorHandler $handler
-     * @return RedirectResponse
-     */
-    public function store(Request $request, CreateSetorHandler $handler): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'setor' => 'required|string|max:100|unique:setores,setor',
+        $request->validate([
+            'nome' => [
+                'required',
+                'string',
+                'max:100',
+                function ($attribute, $value, $fail) {
+                    if (\App\Models\Setor::where('nome', $value)->exists()) {
+                        $fail('Já existe um setor com esse nome.');
+                    }
+                },
+            ],
+            'descricao' => ['nullable', 'string'],
         ]);
 
-        $command = new CreateSetorCommand(
-            setor: $validated['setor']
-        );
-
-        $handler($command);
+        Setor::create([
+            'nome' => $request->nome,
+            'descricao' => $request->descricao,
+        ]);
 
         return redirect()->route('setores.index')->with('success', 'Setor criado com sucesso!');
     }
 
-    /**
-     * Remove um setor existente.
-     * @param Setor $setor (Injetado pela Rota-Model-Binding)
-     * @param DestroySetorHandler $handler
-     * @return RedirectResponse
-     */
-    public function destroy(Setor $setor, DestroySetorHandler $handler): RedirectResponse
-    {
-        try {
-            // O Command transporta o modelo a ser excluído
-            $command = new DestroySetorCommand(setor: $setor);
-            
-            // O Handler executa a verificação e a exclusão
-            $handler($command);
 
-        } catch (LogicException $e) {
-            // Captura o erro de negócio (ex: "Setor possui usuários")
-            return redirect()->route('setores.index')->with('error', $e->getMessage());
+    public function destroy($id): RedirectResponse
+    {
+        $setor = Setor::findOrFail($id);
+        if ($setor->users()->exists()) {
+            return redirect()
+                ->route('setores.index')
+                ->with('error', 'Não é possível excluir este setor, pois existem usuários vinculados a ele.');
         }
 
-        return redirect()->route('setores.index')->with('success', 'Setor excluído com sucesso!');
+        if ($setor->permissoes()->exists()) {
+            return redirect()
+                ->route('setores.index')
+                ->with('error', 'Não é possível excluir este setor, pois existem permissões vinculadas a ele.');
+        }
+
+        $setor->delete();
+
+        return redirect()
+            ->route('setores.index')
+            ->with('success', 'Setor excluído com sucesso!');
     }
 }
