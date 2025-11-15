@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('generos', function (Blueprint $table) {
             $table->id();
-            $table->string('genero', 100);
+            $table->string('genero', 100)->unique();
             $table->text('descricao_genero');
             $table->timestamps();
         });

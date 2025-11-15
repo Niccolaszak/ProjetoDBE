@@ -2,22 +2,34 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Permissao;
-use App\Models\Tela;
 use App\Models\Cargo;
-use App\Models\Setor;
+use App\Models\Tela;
+use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class PermissaoController extends Controller
 {
-    public function index()
+    /**
+     * Adiciona o construtor para autorização automática via Policy.
+     */
+    public function __construct()
     {
+        $this->authorizeResource(Permissao::class, 'permissao');
+    }
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(): View
+    {
+        
         $permissoes = Permissao::with(['tela', 'cargo', 'setor'])
             /*->whereHas('cargo', function($q) {
-                $q->where('nome', '!=', 'Admin');
-            })*/
+                    $q->where('nome', '!=', 'Admin');
+                })*/
             ->get();
-
         $telas = Tela::all();
         $cargos = Cargo::all();
         $setores = Setor::all();
@@ -37,38 +49,21 @@ class PermissaoController extends Controller
         return view('permissoes.index', compact('permissoes', 'cargosFiltrados', 'setoresFiltrados', 'telasFiltradas'));
     }
 
-
-    public function create()
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request): RedirectResponse
     {
-        $telas = Tela::all();
-        $cargos = Cargo::all();
-        $setores = Setor::all();
-
-        $cargosFiltrados = $cargos->filter(function($c) {
-            return $c->nome !== 'Admin' && $c->nome !== 'Teste'; 
-        });
-
-        $setoresFiltrados = $setores->filter(function($s) {
-            return $s->nome !== 'Admin' && $s->nome !== 'Teste';
-        });
-
-        $telasFiltradas = $telas->filter(function($t) {
-            return $t->nome !== 'Consultar Painel';
-        });
-
-        return view('permissoes.index', compact('telasFiltradas', 'cargosFiltrados', 'setoresFiltrados'));
-    }
-
-    public function store(Request $request)
-    {
+        // Validação
         $request->validate([
-            'tela_id' => 'required|exists:telas,id',
+            'tela_id'  => 'required|exists:telas,id',
             'cargo_id' => 'required|exists:cargos,id',
             'setor_id' => [
                 'required',
                 'exists:setores,id',
                 function ($attribute, $value, $fail) use ($request) {
-                    $exists = \App\Models\Permissao::where('tela_id', $request->tela_id)
+                    // Previne duplicacao
+                    $exists = Permissao::where('tela_id', $request->tela_id)
                         ->where('cargo_id', $request->cargo_id)
                         ->where('setor_id', $request->setor_id)
                         ->exists();
@@ -80,37 +75,48 @@ class PermissaoController extends Controller
             ],
         ]);
 
-        Permissao::create($request->only('tela_id', 'cargo_id', 'setor_id'));
+        // Dados principais
+        $data = $request->only('tela_id', 'cargo_id', 'setor_id');
 
-        $telasComExtras = [1];
+        // Cria a permissão principal
+        Permissao::create($data);
+
+        // Cria permissões extras (tela 1)
+        $telasExtras = [1];
 
         if ($request->tela_id >= 2 && $request->tela_id <= 11) {
-        foreach ($telasComExtras as $telaExtraId) {
-            // Checa se já existe para não duplicar
-            $exists = \App\Models\Permissao::where('tela_id', $telaExtraId)
-                ->where('cargo_id', $request->cargo_id)
-                ->where('setor_id', $request->setor_id)
-                ->exists();
 
-            if (!$exists) {
-                Permissao::create([
-                    'tela_id' => $telaExtraId,
-                    'cargo_id' => $request->cargo_id,
-                    'setor_id' => $request->setor_id,
-                ]);
+            foreach ($telasExtras as $telaExtraId) {
+
+                // Evita duplicados
+                $existeExtra = Permissao::where('tela_id', $telaExtraId)
+                    ->where('cargo_id', $request->cargo_id)
+                    ->where('setor_id', $request->setor_id)
+                    ->exists();
+
+                if (! $existeExtra) {
+                    Permissao::create([
+                        'tela_id'  => $telaExtraId,
+                        'cargo_id' => $request->cargo_id,
+                        'setor_id' => $request->setor_id,
+                    ]);
+                }
             }
         }
+
+        return redirect()
+            ->route('permissoes.index')
+            ->with('success', 'Permissão criada!');
     }
 
-        return redirect()->route('permissoes.index')->with('success', 'Permissão criada!');
-    }
-    
-    public function destroy($id)
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Permissao $permissao): RedirectResponse
     {
-        $permissao = Permissao::findOrFail($id);
+        
         $permissao->delete();
 
-        return redirect()->route('permissoes.index')
-                        ->with('success', 'Permissão excluída com sucesso!');
+        return redirect()->route('permissoes.index')->with('success', 'Permissão excluída com sucesso!');
     }
 }

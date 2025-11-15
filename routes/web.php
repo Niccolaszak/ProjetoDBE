@@ -40,40 +40,37 @@ Route::middleware(['auth', ForcarRedefinirSenha::class])->group(function () {
             Route::get('/', [ProfileController::class, 'index'])->name('profile.index');
         });
         
-    Route::middleware(['check.permission'])->group(function () {
-
-        Route::resource('permissoes', PermissaoController::class)
-            ->except(['edit', 'update', 'show']);
-
-        Route::resource('cargos', CargosController::class)
-            ->except(['edit', 'update', 'show']);
-
-        Route::resource('setores', SetoresController::class)
-            ->except(['edit', 'update', 'show']);
-
-        Route::resource('users', UserController::class)
-            ->except(['edit','show']);
-
-        Route::resource('movimentacoes', MovimentacaoController::class)
-            ->except(['show','edit','update']);
-
-        Route::resource('estoques', EstoqueController::class)
-            ->except(['create','store','edit','update','destroy']);
-
-        Route::resource('livros', LivroController::class);
-
-        Route::resource('generos', GeneroController::class)
-            ->except(['show','edit','update']);
-        
-        Route::resource('fornecedores', FornecedorController::class)
-            ->except(['show','edit', 'create']);
-
-        Route::prefix('profile')->group(function () {
+    Route::prefix('profile')->group(function () {
             Route::get('/edit', [ProfileController::class, 'edit'])->name('profile.edit');
             Route::patch('/update', [ProfileController::class, 'update'])->name('profile.update');
             Route::delete('/destroy', [ProfileController::class, 'destroy'])->name('profile.destroy');
         });
-    });
+    Route::resource('permissoes', PermissaoController::class)
+        ->except(['edit', 'update', 'show']);
+
+    Route::resource('estoques', EstoqueController::class)
+        ->except(['create','store','edit','update','destroy']);
+
+    Route::resource('movimentacoes', MovimentacaoController::class)
+        ->except(['show','edit','update']);
+
+    Route::resource('users', UserController::class)
+        ->except(['edit','show']);
+
+    Route::resource('setores', SetoresController::class)
+        ->except(['edit', 'update', 'show']);
+            
+    Route::resource('cargos', CargosController::class)
+        ->except(['edit', 'update', 'show']);
+
+    Route::resource('fornecedores', FornecedorController::class)
+        ->except(['show','edit', 'create']);
+
+    Route::resource('generos', GeneroController::class)
+        ->except(['show','edit','update']);
+        
+    Route::resource('livros', LivroController::class);
+
 });
 
 require __DIR__.'/auth.php';

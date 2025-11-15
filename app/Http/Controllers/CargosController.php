@@ -1,63 +1,72 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Cargo;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
+use Illuminate\Validation\Rule;
 
 class CargosController extends Controller
 {
-    public function index()
+    /**
+     * Adiciona o construtor para autorização automática via Policy.
+     */
+    public function __construct()
+    {
+        $this->authorizeResource(Cargo::class, 'cargo');
+    }
+
+    /**
+     * Lista todos os cargos.
+     */
+    public function index(): View
     {
         $cargos = Cargo::all();
         //$cargos = Cargo::whereNotIn('nome', ['Admin', 'Teste'])->get();
         return view('cargos.index', compact('cargos'));
     }
 
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'nome' => [
                 'required',
                 'string',
                 'max:100',
-                function ($attribute, $value, $fail) {
-                    if (\App\Models\Cargo::where('nome', $value)->exists()) {
-                        $fail('Já existe um cargo com esse nome.');
-                    }
-                },
+                Rule::unique('cargos', 'nome'),
             ],
             'descricao' => ['nullable', 'string'],
         ]);
 
-        Cargo::create([
-            'nome' => $request->nome,
-            'descricao' => $request->descricao,
-        ]);
+        Cargo::create($validated);
 
         return redirect()->route('cargos.index')->with('success', 'Cargo criado com sucesso!');
     }
 
-    public function destroy($id): RedirectResponse
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Cargo $cargo): RedirectResponse
     {
-        $cargo = Cargo::findOrFail($id);
+        // Impede excluir se houver usuários vinculados
         if ($cargo->users()->exists()) {
             return redirect()
                 ->route('cargos.index')
                 ->with('error', 'Não é possível excluir este cargo, pois existem usuários vinculados a ele.');
         }
 
+        // Impede excluir se houver permissões vinculadas
         if ($cargo->permissoes()->exists()) {
-            return redirect()
-                ->route('cargos.index')
-                ->with('error', 'Não é possível excluir este cargo, pois existem permissões vinculadas a ele.');
+            return redirect()->route('cargos.index')->with('error', 'Não é possível excluir este cargo, pois existem permissões vinculadas a ele.');
         }
 
         $cargo->delete();
 
-        return redirect()
-            ->route('cargos.index')
-            ->with('success', 'Cargo excluído com sucesso!');
+        return redirect()->route('cargos.index')->with('success', 'Cargo excluído com sucesso!');
     }
-
-}
+} 

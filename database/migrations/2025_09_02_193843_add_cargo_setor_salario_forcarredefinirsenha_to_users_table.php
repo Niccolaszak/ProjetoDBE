@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('setor_id')->constrained('setores');
             $table->string('setor_nome');
             $table->decimal('salario', 10, 2);
+            $table->boolean('forcar_redefinir_senha')->default(true);
         });
     }
 
@@ -26,11 +27,18 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
+            
             $table->dropForeign(['cargo_id']);
-            $table->dropColumn(['cargo_id', 'cargo_nome']);
             $table->dropForeign(['setor_id']);
-            $table->dropColumn(['setor_id', 'setor_nome']);
-            $table->dropColumn(['salario']);
+
+            $table->dropColumn([
+                'cargo_id',
+                'cargo_nome',
+                'setor_id',
+                'setor_nome',
+                'salario',
+                'forcar_redefinir_senha'
+            ]);
         });
     }
 };

@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('fornecedores', function (Blueprint $table) {
             $table->id();
-            $table->string('tipo', 50); // Ex: "Pessoa Física" ou "Pessoa Jurídica"
+            $table->string('tipo', 50); // "Pessoa Física" ou "Pessoa Jurídica"
             $table->string('razao_social', 150);
             $table->string('cnpj_cpf', 20)->unique();
             $table->string('email', 100);

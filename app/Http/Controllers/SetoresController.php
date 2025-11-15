@@ -5,60 +5,66 @@ namespace App\Http\Controllers;
 use App\Models\Setor;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
+use Illuminate\Validation\Rule;
 
 class SetoresController extends Controller
 {
-    public function index()
+    /**
+     * Adiciona o construtor para autorização automática via Policy.
+     */
+    public function __construct()
+    {
+        $this->authorizeResource(Setor::class, 'setor');
+    }
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(): View
     {
         $setores = Setor::all();
         //$setores = Setor::whereNotIn('nome', ['Admin', 'Teste'])->get();
         return view('setores.index', compact('setores'));
     }
 
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'nome' => [
                 'required',
                 'string',
                 'max:100',
-                function ($attribute, $value, $fail) {
-                    if (\App\Models\Setor::where('nome', $value)->exists()) {
-                        $fail('Já existe um setor com esse nome.');
-                    }
-                },
+                Rule::unique('setores', 'nome'),
             ],
             'descricao' => ['nullable', 'string'],
         ]);
 
-        Setor::create([
-            'nome' => $request->nome,
-            'descricao' => $request->descricao,
-        ]);
+        Setor::create($validated);
 
         return redirect()->route('setores.index')->with('success', 'Setor criado com sucesso!');
     }
 
-
-    public function destroy($id): RedirectResponse
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Setor $setor): RedirectResponse
     {
-        $setor = Setor::findOrFail($id);
+        // Impede excluir se houver usuários vinculados
         if ($setor->users()->exists()) {
-            return redirect()
-                ->route('setores.index')
-                ->with('error', 'Não é possível excluir este setor, pois existem usuários vinculados a ele.');
+            return redirect()->route('setores.index')->with('error', 'Não é possível excluir este setor, pois existem usuários vinculados a ele.');
         }
 
-        if ($setor->permissoes()->exists()) {
-            return redirect()
-                ->route('setores.index')
-                ->with('error', 'Não é possível excluir este setor, pois existem permissões vinculadas a ele.');
+        // Impede excluir se houver permissões vinculadas
+        if (method_exists($setor, 'permissoes') && $setor->permissoes()->exists()) {
+            return redirect()->route('setores.index')->with('error', 'Não é possível excluir este setor, pois existem permissões vinculadas a ele.');
         }
 
         $setor->delete();
 
-        return redirect()
-            ->route('setores.index')
-            ->with('success', 'Setor excluído com sucesso!');
+        return redirect()->route('setores.index')->with('success', 'Setor excluído com sucesso!');
     }
 }
