@@ -2,27 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\MovimentacaoService;
 use App\Models\Movimentacao;
 use App\Models\Livro;
 use App\Models\Fornecedor;
 use App\Models\User;
-
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
-// use InvalidArgumentException; // Pode usar \Exception ou ser específico
 
 class MovimentacaoController extends Controller
 {
-    /**
-     * Injeta o Service (o Orquestrador) no Controller,
-     * [cite_start]como no exemplo [cite: 391-396].
-     */
-    public function __construct(protected MovimentacaoService $service)
-    {
-    }
-
     public function index(): View
     {
         $movimentacoes = Movimentacao::with('livro')->get();
@@ -43,7 +32,7 @@ class MovimentacaoController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
+        $request->validate([
             'livro_id' => 'required|exists:livros,id',
             'quantidade' => 'required|integer|min:1',
             'tipo' => 'required|in:entrada,saida',
@@ -54,6 +43,19 @@ class MovimentacaoController extends Controller
             'observacao' => 'nullable|string',
         ]);
 
+        $livro = Livro::findOrFail($request->livro_id);
+        $estoque = $livro->estoque;
+
+        // Bloqueia saída se estoque insuficiente
+        if ($request->tipo === 'saida') {
+            $quantidade = $request->quantidade;
+            if (!$estoque || $estoque->quantidade_disponivel < $quantidade) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Não é possível registrar saída. Estoque insuficiente!');
+            }
+        }
+
         $data = $request->all();
 
         if ($request->tipo_relacionamento === 'fornecedor' && $request->relacionamento_id) {
@@ -62,20 +64,8 @@ class MovimentacaoController extends Controller
             $data['telefone_contato'] = $fornecedor->telefone;
         }
 
-        $movimentacao = Movimentacao::create($data);
-
-        try {
-
-            $this->service->processar($movimentacao);
-
-        } catch (\Exception $e) {
-            
-            $movimentacao->delete(); 
-            
-            return redirect()->back()
-                ->withInput()
-                ->with('error', $e->getMessage());
-        }
+        // Se for cliente, nome_contato e telefone_contato já vêm do form
+        Movimentacao::create($data);
 
         return redirect()->route('movimentacoes.index')->with('success', 'Movimentação registrada com sucesso!');
     }
@@ -83,17 +73,14 @@ class MovimentacaoController extends Controller
     public function destroy($id)
     {
         $movimentacao = Movimentacao::findOrFail($id);
-        
         try {
-            
-            $this->service->reverter($movimentacao);
+            $movimentacao->reverterEstoque();
 
             $movimentacao->delete();
 
             return redirect()->route('movimentacoes.index')->with('success', 'Movimentação excluída com sucesso!');
-        
         } catch (\Exception $e) {
-            
+            // Retorna erro amigável para o Blade
             return redirect()->route('movimentacoes.index')->with('error', $e->getMessage());
         }
     }

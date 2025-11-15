@@ -49,7 +49,7 @@
         </div>
     </x-slot>
     <div class="overflow-x-auto p-6">
-        <table class="w-full border border-gray-300 bg-white rounded-lg shadow-md whitespace-nowrap" id="generosTable">
+        <table class="w-full border border-gray-300 bg-white rounded-lg shadow-md" id="generosTable">
             <thead class="bg-gray-100 border-b border-gray-300">
                 <tr>
                     <th class="px-4 py-2 text-left font-semibold text-gray-700 cursor-pointer" onclick="ordenarTabela(0)">

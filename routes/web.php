@@ -16,10 +16,10 @@ use App\Http\Controllers\MovimentacaoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FornecedorController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\ReportController;
 use App\Models\Fornecedor;
 
 Route::middleware('guest')->group(function () {
+    // Login será a página inicial
     Route::get('/', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
 
@@ -61,9 +61,6 @@ Route::middleware(['auth', ForcarRedefinirSenha::class])->group(function () {
             ->except(['create','store','edit','update','destroy']);
 
         Route::resource('livros', LivroController::class);
-
-        Route::get('/reports/livros/{type}', [ReportController::class, 'downloadLivros'])
-            ->name('reports.livros.download');
 
         Route::resource('generos', GeneroController::class)
             ->except(['show','edit','update']);

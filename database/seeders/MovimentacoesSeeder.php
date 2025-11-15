@@ -6,20 +6,16 @@ use Illuminate\Database\Seeder;
 use App\Models\Movimentacao;
 use App\Models\Livro;
 use App\Models\Fornecedor;
-use App\Services\MovimentacaoService; 
 
 class MovimentacoesSeeder extends Seeder
 {
     public function run(): void
     {
-        $service = resolve(MovimentacaoService::class);
-
         $livros = Livro::all();
         $fornecedores = Fornecedor::all();
 
-        // --- ENTRADAS INICIAIS ---
         foreach ($livros as $livro) {
-            $mov = Movimentacao::create([
+            Movimentacao::create([
                 'livro_id' => $livro->id,
                 'quantidade' => rand(5, 15),
                 'tipo' => 'entrada',
@@ -31,18 +27,14 @@ class MovimentacoesSeeder extends Seeder
                 'observacao' => 'Entrada inicial de estoque para o livro ' . $livro->titulo,
                 'data_hora' => now()->subDays(rand(10, 30)),
             ]);
-
-            $service->processar($mov);
         }
 
-        // --- MOVIMENTAÇÕES ALEATÓRIAS ---
         for ($i = 0; $i < 20; $i++) {
             $isEntrada = rand(0, 1) === 1;
             $livro = $livros->random();
 
             if ($isEntrada) {
-                // LÓGICA DE ENTRADA
-                $mov = Movimentacao::create([
+                Movimentacao::create([
                     'livro_id' => $livro->id,
                     'quantidade' => rand(1, 5),
                     'tipo' => 'entrada',
@@ -54,17 +46,12 @@ class MovimentacoesSeeder extends Seeder
                     'observacao' => 'Reposição de estoque',
                     'data_hora' => now()->subDays(rand(0, 9)),
                 ]);
-
-                $service->processar($mov);
-
             } else {
-                // LÓGICA DE SAÍDA
-                
-                try {
-                    // Simula uma quantidade de saída
-                    $qtd = rand(1, 3);
+                $estoque = $livro->estoque()->first();
+                if ($estoque && $estoque->quantidade_disponivel > 0) {
+                    $qtd = rand(1, $estoque->quantidade_disponivel);
 
-                    $mov = Movimentacao::create([
+                    Movimentacao::create([
                         'livro_id' => $livro->id,
                         'quantidade' => $qtd,
                         'tipo' => 'saida',
@@ -76,11 +63,6 @@ class MovimentacoesSeeder extends Seeder
                         'observacao' => 'Venda de livro',
                         'data_hora' => now()->subDays(rand(0, 9)),
                     ]);
-
-                    // 3. Processar a movimentação
-                    $service->processar($mov);
-
-                } catch (\Exception $e) {
                 }
             }
         }
