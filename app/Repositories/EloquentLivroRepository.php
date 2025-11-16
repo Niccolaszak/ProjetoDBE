@@ -46,8 +46,6 @@ class EloquentLivroRepository implements LivroRepositoryInterface
 
     /**
      * Verifica se um livro possui movimentações associadas.
-     * Esta verificação é usada pelo Service (que faremos na Fase 2)
-     * para decidir se a exclusão pode ocorrer.
      */
     public function hasMovimentacoes(Livro $livro): bool
     {
