@@ -41,7 +41,7 @@ class AuthServiceProvider extends ServiceProvider
          */
         Gate::before(function (User $user, string $ability) {
             // strcasecmp retorna 0 se as strings forem iguais, ignorando maiúsculas/minúsculas.
-            if (strcasecmp($user->cargo->cargo, 'Admin') === 0) {
+            if (strcasecmp($user->cargo->nome, 'Admin') === 0) {
                 return true;
             }
             

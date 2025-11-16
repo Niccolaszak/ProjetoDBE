@@ -29,7 +29,6 @@ Route::middleware('guest')->group(function () {
 Route::get('/senha/redefinir', [SenhaController::class, 'show'])->name('senha.redefinir');
 Route::post('/senha/redefinir', [SenhaController::class, 'update']);
 
-Route::get('/hello-world', [HelloWorldController::class, 'exibirMensagem']);
 Route::middleware(['auth', ForcarRedefinirSenha::class])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -39,16 +38,15 @@ Route::middleware(['auth', ForcarRedefinirSenha::class])->group(function () {
          ->name('painel');
 
     Route::prefix('profile')->group(function () {
-            Route::get('/', [ProfileController::class, 'index'])->name('profile.index');
-        });
-        
-    Route::prefix('profile')->group(function () {
-            Route::get('/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-            Route::patch('/update', [ProfileController::class, 'update'])->name('profile.update');
-            Route::delete('/destroy', [ProfileController::class, 'destroy'])->name('profile.destroy');
-        });
+        Route::get('/', [ProfileController::class, 'index'])->name('profile.index');
+        Route::get('/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/update', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/destroy', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    });
+
     Route::resource('permissoes', PermissaoController::class)
-        ->except(['edit', 'update', 'show']);
+        ->except(['edit', 'update', 'show'])
+        ->parameters(['permissoes' => 'permissao']);
 
     Route::resource('estoques', EstoqueController::class)
         ->except(['create','store','edit','update','destroy']);

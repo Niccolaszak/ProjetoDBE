@@ -15,7 +15,7 @@ class ProfileController extends Controller
 
     public function index(Request $request)
     {
-        Gate::authorize('Consultar Perfil');
+        //Gate::authorize('Consultar Perfil');
 
         return view('profile.index', [
             'user' => $request->user(),

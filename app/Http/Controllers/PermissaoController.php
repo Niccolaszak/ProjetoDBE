@@ -27,9 +27,9 @@ class PermissaoController extends Controller
     {
         
         $permissoes = Permissao::with(['tela', 'cargo', 'setor'])
-            /*->whereHas('cargo', function($q) {
+            ->whereHas('cargo', function($q) {
                     $q->where('nome', '!=', 'Admin');
-                })*/
+                })
             ->get();
         $telas = Tela::all();
         $cargos = Cargo::all();
@@ -85,7 +85,7 @@ class PermissaoController extends Controller
         // Cria permissões extras (tela 1)
         $telasExtras = [1];
 
-        if ($request->tela_id >= 2 && $request->tela_id <= 11) {
+        if ($request->tela_id >= 2) {
 
             foreach ($telasExtras as $telaExtraId) {
 
@@ -115,7 +115,7 @@ class PermissaoController extends Controller
      */
     public function destroy(Permissao $permissao): RedirectResponse
     {
-        
+
         $permissao->delete();
 
         return redirect()->route('permissoes.index')->with('success', 'Permissão excluída com sucesso!');
