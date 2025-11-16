@@ -6,32 +6,53 @@ use App\Models\Livro;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
-use App\Interfaces\LivroRepositoryInterface;
 use App\Interfaces\GeneroRepositoryInterface;
+use Exception;
+
+// Imports do CQRS
+use App\Queries\Livro\ListarLivrosQueryHandler;
+use App\Commands\Livro\CriarLivroCommand;
+use App\Commands\Livro\CriarLivroHandler;
+use App\Commands\Livro\AtualizarLivroCommand;
+use App\Commands\Livro\AtualizarLivroHandler;
+use App\Commands\Livro\ExcluirLivroHandler;
 
 class LivroController extends Controller
-{
-    private LivroRepositoryInterface $livroRepository;
+{    
+    // Handlers Injetados
+    private ListarLivrosQueryHandler $listarLivrosHandler;
+    private CriarLivroHandler $criarLivroHandler;
+    private AtualizarLivroHandler $atualizarLivroHandler;
+    private ExcluirLivroHandler $excluirLivroHandler;
+
     private GeneroRepositoryInterface $generoRepository;
 
     public function __construct(
-        LivroRepositoryInterface $livroRepository,
+        ListarLivrosQueryHandler $listarLivrosHandler,
+        CriarLivroHandler $criarLivroHandler,
+        AtualizarLivroHandler $atualizarLivroHandler,
+        ExcluirLivroHandler $excluirLivroHandler,
+        
         GeneroRepositoryInterface $generoRepository
     ) {
-        $this->livroRepository = $livroRepository;
+        $this->listarLivrosHandler = $listarLivrosHandler;
+        $this->criarLivroHandler = $criarLivroHandler;
+        $this->atualizarLivroHandler = $atualizarLivroHandler;
+        $this->excluirLivroHandler = $excluirLivroHandler;
+        
         $this->generoRepository = $generoRepository;
 
         $this->authorizeResource(Livro::class, 'livro');
     }
 
     /**
-     * Display a listing of the resource.
+     * Lado da QUERY: Chama o handler de listagem.
      */
     public function index(): View
     {
-        $livros  = $this->livroRepository->allWithGenero();
-        $generos = $this->generoRepository->all();
+        $livros  = $this->listarLivrosHandler->handle();
         
+        $generos = $this->generoRepository->all();
         $generosOptions = $generos->map(fn($g) => (object)[
             'id' => $g->id,
             'nome' => $g->genero
@@ -41,7 +62,7 @@ class LivroController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Lado do COMMAND: Chama o handler de criação.
      */
     public function store(Request $request): RedirectResponse
     {
@@ -52,13 +73,15 @@ class LivroController extends Controller
             'descricao_livro' => 'required|string',
         ]);
 
-         $this->livroRepository->create($validatedData);
+        $command = new CriarLivroCommand($validatedData);
+
+        $this->criarLivroHandler->handle($command);
 
         return redirect()->route('livros.index')->with('success', 'Livro criado com sucesso!');
     }
 
     /**
-     * Update the specified resource in storage.
+     * Lado do COMMAND: Chama o handler de atualização.
      */
     public function update(Request $request, Livro $livro): RedirectResponse
     {
@@ -69,22 +92,25 @@ class LivroController extends Controller
             'descricao_livro' => 'required|string',
         ]);
 
-        $this->livroRepository->update($livro, $validatedData);
+        $command = new AtualizarLivroCommand($livro, $validatedData);
+
+        $this->atualizarLivroHandler->handle($command);
 
         return redirect()->route('livros.index')->with('success', 'Livro atualizado com sucesso!');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Lado do COMMAND: Chama o handler de exclusão.
      */
     public function destroy(Livro $livro): RedirectResponse
     {
-         if ($this->livroRepository->hasMovimentacoes($livro)) {
-            return redirect()->route('livros.index')->with('error', 'Não é possível excluir este livro, pois existem movimentações vinculadas.');
+        try {
+            $this->excluirLivroHandler->handle($livro);
+            
+            return redirect()->route('livros.index')->with('success', 'Livro excluído com sucesso!');
+        
+        } catch (Exception $e) {
+            return redirect()->route('livros.index')->with('error', $e->getMessage());
         }
-
-        $this->livroRepository->delete($livro);
-
-        return redirect()->route('livros.index')->with('success', 'Livro excluído com sucesso!');
     }
 }

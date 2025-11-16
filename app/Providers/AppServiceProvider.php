@@ -26,6 +26,9 @@ use App\Repositories\EloquentPermissaoRepository;
 use App\Interfaces\TelaRepositoryInterface;
 use App\Repositories\EloquentTelaRepository;
 
+use App\Interfaces\Services\LivroServiceInterface;
+use App\Services\LivroService;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -111,6 +114,14 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             TelaRepositoryInterface::class,
             EloquentTelaRepository::class
+        );
+
+        /**
+         * Liga a interface LivroServiceInterface à implementação.
+         */
+        $this->app->bind(
+            LivroServiceInterface::class,
+            LivroService::class
         );
     }
 
