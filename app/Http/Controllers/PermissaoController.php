@@ -43,11 +43,7 @@ class PermissaoController extends Controller
             return $s->nome !== 'Admin' && $s->nome !== 'Teste';
         });
 
-        $telasFiltradas = $telas->filter(function($t) {
-            return $t->nome !== 'Consultar Painel';
-        });
-
-        return view('permissoes.index', compact('permissoes', 'cargosFiltrados', 'setoresFiltrados', 'telasFiltradas'));
+        return view('permissoes.index', compact('permissoes', 'cargosFiltrados', 'setoresFiltrados', 'telas'));
     }
 
     /**
@@ -81,29 +77,6 @@ class PermissaoController extends Controller
 
         // Cria a permissão principal
         Permissao::create($data);
-
-        // Cria permissões extras (tela 1)
-        $telasExtras = [1];
-
-        if ($request->tela_id >= 2) {
-
-            foreach ($telasExtras as $telaExtraId) {
-
-                // Evita duplicados
-                $existeExtra = Permissao::where('tela_id', $telaExtraId)
-                    ->where('cargo_id', $request->cargo_id)
-                    ->where('setor_id', $request->setor_id)
-                    ->exists();
-
-                if (! $existeExtra) {
-                    Permissao::create([
-                        'tela_id'  => $telaExtraId,
-                        'cargo_id' => $request->cargo_id,
-                        'setor_id' => $request->setor_id,
-                    ]);
-                }
-            }
-        }
 
         return redirect()
             ->route('permissoes.index')

@@ -2,10 +2,6 @@
 
 return [
     [
-        'nome' => 'Consultar Painel',
-        'rotas' => ['painel']
-    ],
-    [
         'nome' => 'Editar Permissões',
         'rotas' => ['permissoes.store', 'permissoes.destroy', 'permissoes.index']
     ],

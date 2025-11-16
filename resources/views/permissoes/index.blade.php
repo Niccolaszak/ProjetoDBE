@@ -20,7 +20,7 @@
                         </h2>
 
                         <!-- Tela -->
-                        <x-custom-select name="tela_id" :options="$telasFiltradas" label="Tela" placeholder="Selecione a tela" />
+                        <x-custom-select name="tela_id" :options="$telas" label="Tela" placeholder="Selecione a tela" />
 
                         <!-- Cargo -->
                         <x-custom-select name="cargo_id" :options="$cargosFiltrados" label="Cargo" placeholder="Selecione o cargo" />

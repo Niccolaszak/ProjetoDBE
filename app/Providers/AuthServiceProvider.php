@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Permissao; 
+use Illuminate\Support\Facades\Schema;
 use App\Models\User;
 use App\Models\Tela;
 use Illuminate\Support\Facades\Gate;
@@ -53,23 +55,29 @@ class AuthServiceProvider extends ServiceProvider
          * Define todos os "Gates" dinamicamente a partir do banco
          */
         try {
-            // Usamos o cache para evitar consultar o banco em toda requisição.
-            $telas = Cache::rememberForever('telas_permissoes', function () {
-                // Pega todas as telas que têm um nome definido
-                return Tela::whereNotNull('tela')->get();
-            });
 
-            foreach ($telas as $tela) {
-                /*
-                 * Para cada 'Tela' no banco (ex: "Editar Usuários"), 
-                 * definimos um Gate (habilidade) com o mesmo nome.
-                 */
-                Gate::define($tela->tela, function (User $user) use ($tela) {
+            if (Schema::hasTable('telas') && Schema::hasTable('permissoes')) {
 
-                    return $user->cargo->permissoes()
-                        ->where('tela_id', $tela->id)
-                        ->exists();
+                // 2. Usamos o cache para evitar consultar o banco em toda requisição.
+                $telas = Cache::rememberForever('telas_permissoes', function () {
+                    // Pega todas as telas que têm um nome definido
+                    return Tela::whereNotNull('nome')->get();
                 });
+
+                // 3. Definimos os Gates
+                foreach ($telas as $tela) {
+                    /*
+                     * Para cada 'Tela' no banco (ex: "Editar Usuários"), 
+                     * definimos um Gate (habilidade) com o mesmo nome.
+                     */
+                    Gate::define($tela->nome, function (User $user) use ($tela) {
+  
+                        return Permissao::where('tela_id', $tela->id)
+                                       ->where('cargo_id', $user->cargo_id)
+                                       ->where('setor_id', $user->setor_id)
+                                       ->exists();
+                    });
+                }
             }
         } catch (Exception $e) {
             Log::error('Erro ao registrar Gates de permissão: ' . $e->getMessage());
