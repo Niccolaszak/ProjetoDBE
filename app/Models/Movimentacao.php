@@ -37,7 +37,7 @@ class Movimentacao extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'responsavel', 'id');
+        return $this->belongsTo(User::class, 'responsavel', 'name');
     }
 
     public function getContatoNomeAttribute()

@@ -6,14 +6,15 @@ use App\Models\Genero;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use App\Interfaces\GeneroRepositoryInterface;
 
 class GeneroController extends Controller
 {
-    /**
-     * Adiciona o construtor para autorização automática via Policy.
-     */
-    public function __construct()
+    private GeneroRepositoryInterface $generoRepository;
+
+    public function __construct(GeneroRepositoryInterface $generoRepository)
     {
+        $this->generoRepository = $generoRepository;
         $this->authorizeResource(Genero::class, 'genero');
     }
 
@@ -22,8 +23,8 @@ class GeneroController extends Controller
      */
     public function index(): View
     {
+        $generos = $this->generoRepository->all();
         
-        $generos = Genero::all();
         $generosOptions = $generos->map(fn($g) => (object)[
             'id' => $g->id,
             'nome' => $g->genero
@@ -38,12 +39,12 @@ class GeneroController extends Controller
     public function store(Request $request): RedirectResponse
     {
 
-        $request->validate([
+        $validatedData = $request->validate([
             'genero' => 'required|string|max:100|unique:generos',
             'descricao_genero' => 'required|string',
         ]);
 
-        Genero::create($request->only('genero','descricao_genero'));
+        $this->generoRepository->create($validatedData);
 
         return redirect()->route('generos.index')->with('success', 'Gênero criado com sucesso!');
     }
@@ -54,11 +55,11 @@ class GeneroController extends Controller
     public function destroy(Genero $genero): RedirectResponse
     {
 
-        if ($genero->livros()->exists()) {
+        if ($this->generoRepository->hasLivros($genero)) {
             return redirect()->route('generos.index')->with('error', 'Não é possível excluir este gênero, pois existem livros vinculados.');
         }
 
-        $genero->delete();
+        $this->generoRepository->delete($genero);
 
         return redirect()->route('generos.index')->with('success', 'Gênero excluído com sucesso!');
     }

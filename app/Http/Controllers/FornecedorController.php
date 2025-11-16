@@ -7,14 +7,16 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Validation\Rule;
+use App\Interfaces\FornecedorRepositoryInterface;
 
 class FornecedorController extends Controller
 {
-    /**
-     * Adiciona o construtor para autorização automática via Policy.
-     */
-    public function __construct()
+
+    private FornecedorRepositoryInterface $fornecedorRepository;
+
+    public function __construct(FornecedorRepositoryInterface $fornecedorRepository)
     {
+        $this->fornecedorRepository = $fornecedorRepository;
         $this->authorizeResource(Fornecedor::class, 'fornecedor');
     }
 
@@ -23,8 +25,7 @@ class FornecedorController extends Controller
      */
     public function index(): View
     {
-
-        $fornecedores = Fornecedor::all();
+        $fornecedores = $this->fornecedorRepository->all();
         return view('fornecedores.index', compact('fornecedores'));
     }
 
@@ -33,6 +34,7 @@ class FornecedorController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+
         $validated = $request->validate([
             'tipo' => ['required', Rule::in(['CNPJ', 'CPF'])],
             'razao_social' => ['required', 'string', 'max:150'],
@@ -53,7 +55,7 @@ class FornecedorController extends Controller
             'agencia' => ['nullable', 'string', 'max:20'],
         ]);
 
-        Fornecedor::create($validated);
+        $this->fornecedorRepository->create($validated);
 
         return redirect()->route('fornecedores.index')->with('success', 'Fornecedor criado com sucesso!');
     }
@@ -63,6 +65,7 @@ class FornecedorController extends Controller
      */
     public function update(Request $request, Fornecedor $fornecedor): RedirectResponse
     {
+
         $validated = $request->validate([
             'tipo' => ['required', Rule::in(['CNPJ', 'CPF'])],
             'razao_social' => 'required|string|max:150',
@@ -83,7 +86,7 @@ class FornecedorController extends Controller
             'agencia' => 'nullable|string|max:20',
         ]);
 
-        $fornecedor->update($validated);
+        $this->fornecedorRepository->update($fornecedor, $validated);
 
         return redirect()->route('fornecedores.index')->with('success', 'Fornecedor atualizado com sucesso!');
     }
@@ -93,11 +96,11 @@ class FornecedorController extends Controller
      */
     public function destroy(Fornecedor $fornecedor): RedirectResponse
     {
-        if ($fornecedor->movimentacoes()->exists()) {
+        if ($this->fornecedorRepository->hasMovimentacoes($fornecedor)) {
             return redirect()->route('fornecedores.index')->with('error', 'Não é possível excluir este fornecedor, pois existem movimentações vinculadas.');
         }
 
-        $fornecedor->delete();
+        $this->fornecedorRepository->delete($fornecedor);
 
         return redirect()->route('fornecedores.index')->with('success', 'Fornecedor excluído com sucesso!');
     }

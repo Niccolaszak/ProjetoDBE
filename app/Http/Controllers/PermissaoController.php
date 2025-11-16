@@ -3,20 +3,33 @@
 namespace App\Http\Controllers;
 
 use App\Models\Permissao;
-use App\Models\Cargo;
-use App\Models\Setor;
-use App\Models\Tela;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use App\Interfaces\PermissaoRepositoryInterface;
+use App\Interfaces\TelaRepositoryInterface;
+use App\Interfaces\CargoRepositoryInterface;
+use App\Interfaces\SetorRepositoryInterface;
+
 
 class PermissaoController extends Controller
 {
-    /**
-     * Adiciona o construtor para autorização automática via Policy.
-     */
-    public function __construct()
-    {
+    private PermissaoRepositoryInterface $permissaoRepository;
+    private TelaRepositoryInterface $telaRepository;
+    private CargoRepositoryInterface $cargoRepository;
+    private SetorRepositoryInterface $setorRepository;
+
+    public function __construct(
+        PermissaoRepositoryInterface $permissaoRepository,
+        TelaRepositoryInterface $telaRepository,
+        CargoRepositoryInterface $cargoRepository,
+        SetorRepositoryInterface $setorRepository
+    ) {
+        $this->permissaoRepository = $permissaoRepository;
+        $this->telaRepository = $telaRepository;
+        $this->cargoRepository = $cargoRepository;
+        $this->setorRepository = $setorRepository;
+
         $this->authorizeResource(Permissao::class, 'permissao');
     }
 
@@ -25,15 +38,10 @@ class PermissaoController extends Controller
      */
     public function index(): View
     {
-        
-        $permissoes = Permissao::with(['tela', 'cargo', 'setor'])
-            ->whereHas('cargo', function($q) {
-                    $q->where('nome', '!=', 'Admin');
-                })
-            ->get();
-        $telas = Tela::all();
-        $cargos = Cargo::all();
-        $setores = Setor::all();
+        $permissoes = $this->permissaoRepository->getPermissoesComRelacoes();
+        $telas = $this->telaRepository->all();
+        $cargos = $this->cargoRepository->all();
+        $setores = $this->setorRepository->all();
 
         $cargosFiltrados = $cargos->filter(function($c) {
             return $c->nome !== 'Admin' && $c->nome !== 'Teste'; 
@@ -51,7 +59,6 @@ class PermissaoController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        // Validação
         $request->validate([
             'tela_id'  => 'required|exists:telas,id',
             'cargo_id' => 'required|exists:cargos,id',
@@ -59,7 +66,7 @@ class PermissaoController extends Controller
                 'required',
                 'exists:setores,id',
                 function ($attribute, $value, $fail) use ($request) {
-                    // Previne duplicacao
+
                     $exists = Permissao::where('tela_id', $request->tela_id)
                         ->where('cargo_id', $request->cargo_id)
                         ->where('setor_id', $request->setor_id)
@@ -72,11 +79,10 @@ class PermissaoController extends Controller
             ],
         ]);
 
-        // Dados principais
         $data = $request->only('tela_id', 'cargo_id', 'setor_id');
 
-        // Cria a permissão principal
-        Permissao::create($data);
+
+        $this->permissaoRepository->create($data);
 
         return redirect()
             ->route('permissoes.index')
@@ -89,7 +95,7 @@ class PermissaoController extends Controller
     public function destroy(Permissao $permissao): RedirectResponse
     {
 
-        $permissao->delete();
+        $this->permissaoRepository->delete($permissao);
 
         return redirect()->route('permissoes.index')->with('success', 'Permissão excluída com sucesso!');
     }

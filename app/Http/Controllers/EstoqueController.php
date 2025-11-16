@@ -5,14 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Estoque;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use App\Interfaces\EstoqueRepositoryInterface;
 
 class EstoqueController extends Controller
 {
-    /**
-     * Adiciona o construtor para autorização automática via Policy.
-     */
-    public function __construct()
+    private EstoqueRepositoryInterface $estoqueRepository;
+
+    public function __construct(EstoqueRepositoryInterface $estoqueRepository)
     {
+        $this->estoqueRepository = $estoqueRepository;
         $this->authorizeResource(Estoque::class, 'estoque');
     }
 
@@ -21,7 +22,7 @@ class EstoqueController extends Controller
      */
     public function index(): View
     {      
-        $estoques = Estoque::with('livro.genero')->get();
+        $estoques = $this->estoqueRepository->allWithLivroGenero();
         return view('estoques.index', compact('estoques'));
     }
 }

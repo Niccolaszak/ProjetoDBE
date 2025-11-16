@@ -7,14 +7,15 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Validation\Rule;
+use App\Interfaces\CargoRepositoryInterface;
 
 class CargosController extends Controller
 {
-    /**
-     * Adiciona o construtor para autorização automática via Policy.
-     */
-    public function __construct()
+    private CargoRepositoryInterface $cargoRepository;
+
+    public function __construct(CargoRepositoryInterface $cargoRepository)
     {
+        $this->cargoRepository = $cargoRepository;
         $this->authorizeResource(Cargo::class, 'cargo');
     }
 
@@ -23,7 +24,9 @@ class CargosController extends Controller
      */
     public function index(): View
     {
-        $cargos = Cargo::all();
+
+        $cargos = $this->cargoRepository->all();
+        
         //$cargos = Cargo::whereNotIn('nome', ['Admin', 'Teste'])->get();
         return view('cargos.index', compact('cargos'));
     }
@@ -43,7 +46,7 @@ class CargosController extends Controller
             'descricao' => ['nullable', 'string'],
         ]);
 
-        Cargo::create($validated);
+        $this->cargoRepository->create($validated);
 
         return redirect()->route('cargos.index')->with('success', 'Cargo criado com sucesso!');
     }
@@ -53,20 +56,19 @@ class CargosController extends Controller
      */
     public function destroy(Cargo $cargo): RedirectResponse
     {
-        // Impede excluir se houver usuários vinculados
-        if ($cargo->users()->exists()) {
+
+        if ($this->cargoRepository->hasUsers($cargo)) {
             return redirect()
                 ->route('cargos.index')
                 ->with('error', 'Não é possível excluir este cargo, pois existem usuários vinculados a ele.');
         }
 
-        // Impede excluir se houver permissões vinculadas
-        if ($cargo->permissoes()->exists()) {
+        if ($this->cargoRepository->hasPermissoes($cargo)) {
             return redirect()->route('cargos.index')->with('error', 'Não é possível excluir este cargo, pois existem permissões vinculadas a ele.');
         }
 
-        $cargo->delete();
+        $this->cargoRepository->delete($cargo);
 
         return redirect()->route('cargos.index')->with('success', 'Cargo excluído com sucesso!');
     }
-} 
+}

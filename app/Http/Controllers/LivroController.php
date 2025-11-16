@@ -3,18 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Models\Livro;
-use App\Models\Genero;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use App\Interfaces\LivroRepositoryInterface;
+use App\Interfaces\GeneroRepositoryInterface;
 
 class LivroController extends Controller
 {
-    /**
-     * Adiciona o construtor para autorização automática via Policy.
-     */
-    public function __construct()
-    {
+    private LivroRepositoryInterface $livroRepository;
+    private GeneroRepositoryInterface $generoRepository;
+
+    public function __construct(
+        LivroRepositoryInterface $livroRepository,
+        GeneroRepositoryInterface $generoRepository
+    ) {
+        $this->livroRepository = $livroRepository;
+        $this->generoRepository = $generoRepository;
+
         $this->authorizeResource(Livro::class, 'livro');
     }
 
@@ -23,9 +29,9 @@ class LivroController extends Controller
      */
     public function index(): View
     {
+        $livros  = $this->livroRepository->allWithGenero();
+        $generos = $this->generoRepository->all();
         
-        $livros  = Livro::with('genero')->get();
-        $generos = Genero::all();
         $generosOptions = $generos->map(fn($g) => (object)[
             'id' => $g->id,
             'nome' => $g->genero
@@ -39,7 +45,6 @@ class LivroController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-
         $validatedData = $request->validate([
             'titulo' => 'required|string|max:100',
             'autor' => 'required|string|max:100',
@@ -47,8 +52,7 @@ class LivroController extends Controller
             'descricao_livro' => 'required|string',
         ]);
 
-        // Proteção contra Mass Assignment
-        Livro::create($validatedData);
+         $this->livroRepository->create($validatedData);
 
         return redirect()->route('livros.index')->with('success', 'Livro criado com sucesso!');
     }
@@ -58,7 +62,6 @@ class LivroController extends Controller
      */
     public function update(Request $request, Livro $livro): RedirectResponse
     {
-        
         $validatedData = $request->validate([
             'titulo' => 'required|string|max:100',
             'autor' => 'required|string|max:100',
@@ -66,8 +69,7 @@ class LivroController extends Controller
             'descricao_livro' => 'required|string',
         ]);
 
-        // Proteção contra Mass Assignment
-        $livro->update($validatedData);
+        $this->livroRepository->update($livro, $validatedData);
 
         return redirect()->route('livros.index')->with('success', 'Livro atualizado com sucesso!');
     }
@@ -77,14 +79,11 @@ class LivroController extends Controller
      */
     public function destroy(Livro $livro): RedirectResponse
     {
-        
-        // Esta lógica de negócio será movida para um Service na Fase 2,
-        // mas por enquanto, ela permanece aqui.
-        if ($livro->movimentacoes()->exists()) {
+         if ($this->livroRepository->hasMovimentacoes($livro)) {
             return redirect()->route('livros.index')->with('error', 'Não é possível excluir este livro, pois existem movimentações vinculadas.');
         }
 
-        $livro->delete();
+        $this->livroRepository->delete($livro);
 
         return redirect()->route('livros.index')->with('success', 'Livro excluído com sucesso!');
     }

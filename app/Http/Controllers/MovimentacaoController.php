@@ -3,20 +3,40 @@
 namespace App\Http\Controllers;
 
 use App\Models\Movimentacao;
-use App\Models\Livro;
-use App\Models\Fornecedor;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
+use App\Interfaces\MovimentacaoRepositoryInterface;
+use App\Interfaces\EstoqueRepositoryInterface;
+use App\Interfaces\LivroRepositoryInterface;
+use App\Interfaces\FornecedorRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
+
 
 class MovimentacaoController extends Controller
 {
-    /**
-     * Adiciona o construtor para autorização automática via Policy.
-     */
-    public function __construct()
-    {
+
+    private MovimentacaoRepositoryInterface $movimentacaoRepository;
+    private EstoqueRepositoryInterface $estoqueRepository;
+    private LivroRepositoryInterface $livroRepository;
+    private FornecedorRepositoryInterface $fornecedorRepository;
+    private UserRepositoryInterface $userRepository;
+
+    public function __construct(
+        MovimentacaoRepositoryInterface $movimentacaoRepository,
+        EstoqueRepositoryInterface $estoqueRepository,
+        LivroRepositoryInterface $livroRepository,
+        FornecedorRepositoryInterface $fornecedorRepository,
+        UserRepositoryInterface $userRepository
+    ) {
+        $this->movimentacaoRepository = $movimentacaoRepository;
+        $this->estoqueRepository = $estoqueRepository;
+        $this->livroRepository = $livroRepository;
+        $this->fornecedorRepository = $fornecedorRepository;
+        $this->userRepository = $userRepository;
+
         $this->authorizeResource(Movimentacao::class, 'movimentacao');
     }
 
@@ -25,21 +45,20 @@ class MovimentacaoController extends Controller
      */
     public function index(): View
     {
-        $movimentacoes = Movimentacao::with(['livro'])->latest()->get();
-        
-        $livros = Livro::all();
+        $movimentacoes = $this->movimentacaoRepository->allWithLivroAndUser();
+        $livros = $this->livroRepository->allWithGenero(); 
+        $fornecedores = $this->fornecedorRepository->all();
+        $users = $this->userRepository->allWithCargoAndSetor(); 
+
         $livrosOptions = $livros->map(fn($l) => (object)[
             'id' => $l->id,
             'nome' => $l->titulo
         ]);
 
-        $fornecedores = Fornecedor::all();
         $fornecedoresOptions = $fornecedores->map(fn($f) => (object)[
             'id' => $f->id,
             'nome' => $f->razao_social,
         ]);
-
-        $users = User::all();
 
         return view(
             'movimentacoes.index',
@@ -52,42 +71,58 @@ class MovimentacaoController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $validated = $request->validate([
+            'livro_id'            => ['required', 'exists:livros,id'],
+            'tipo'                => ['required', Rule::in(['entrada', 'saida'])],
+            'quantidade'          => ['required', 'integer', 'min:1'],
 
-        $request->validate([
-            'livro_id' => 'required|exists:livros,id',
-            'quantidade' => 'required|integer|min:1',
-            'tipo' => 'required|in:entrada,saida',
-            'tipo_relacionamento' => 'required|in:fornecedor,cliente',
-            'relacionamento_id' => 'nullable|exists:fornecedores,id',
-            'nome_contato' =>
-                $request->tipo_relacionamento === 'cliente' ? 'required|string|max:150' : 'nullable|string|max:150',
-            'telefone_contato' =>
-                $request->tipo_relacionamento === 'cliente' ? 'required|string|max:20' : 'nullable|string|max:20',
-            'observacao' => 'nullable|string',
+            // mantém a lógica original
+            'tipo_relacionamento' => ['required', Rule::in(['fornecedor', 'cliente'])],
+
+            // somente fornecedor usa id
+            'relacionamento_id'   => [
+                Rule::requiredIf($request->tipo_relacionamento === 'fornecedor'),
+                'nullable',
+                'exists:fornecedores,id'
+            ],
+
+            // cliente exige nome e telefone, fornecedor não
+            'nome_contato' => [
+                $request->tipo_relacionamento === 'cliente' ? 'required' : 'nullable',
+                'string',
+                'max:150'
+            ],
+
+            'telefone_contato' => [
+                $request->tipo_relacionamento === 'cliente' ? 'required' : 'nullable',
+                'string',
+                'max:20'
+            ],
+
+            'observacao' => ['nullable', 'string'],
         ]);
 
-        $livro = Livro::findOrFail($request->livro_id);
-        $estoque = $livro->estoque;
+        $estoque = $this->estoqueRepository->findOrCreateByLivroId($request->livro_id);
 
-        // BLOQUEIA SAÍDA SE ESTOQUE INSUFICIENTE
-        if ($request->tipo === 'saida') {
-            if (!$estoque || $estoque->quantidade_disponivel < $request->quantidade) {
-                return back()
-                    ->withInput()
-                    ->with('error', 'Não é possível registrar saída. Estoque insuficiente!');
+        if ($request->tipo === 'saida' && $estoque->quantidade_disponivel < $request->quantidade) {
+            return back()->withInput()->with('error', 'Não é possível registrar saída. Estoque insuficiente!');
+        }
+
+        $data = $validated;
+
+        // fornecedor → preenche nome e telefone automaticamente
+        if ($request->tipo_relacionamento === 'fornecedor') {
+            $fornecedor = $this->fornecedorRepository->find($request->relacionamento_id);
+
+            if ($fornecedor) {
+                $data['nome_contato'] = $fornecedor->razao_social;
+                $data['telefone_contato'] = $fornecedor->telefone;
             }
         }
 
-        $data = $request->all();
+        $data['responsavel'] = Auth::user()->name;
 
-        // Se for fornecedor, preencher automaticamente
-        if ($request->tipo_relacionamento === 'fornecedor' && $request->relacionamento_id) {
-            $fornecedor = Fornecedor::find($request->relacionamento_id);
-            $data['nome_contato'] = $fornecedor->razao_social;
-            $data['telefone_contato'] = $fornecedor->telefone;
-        }
-
-        Movimentacao::create($data);
+        $this->movimentacaoRepository->create($data);
 
         return redirect()->route('movimentacoes.index')
             ->with('success', 'Movimentação registrada com sucesso!');
@@ -100,10 +135,10 @@ class MovimentacaoController extends Controller
     {
 
         try {
-
+            
             $movimentacao->reverterEstoque();
 
-            $movimentacao->delete();
+            $this->movimentacaoRepository->delete($movimentacao);
 
             return redirect()
                 ->route('movimentacoes.index')

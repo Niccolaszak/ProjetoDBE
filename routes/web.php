@@ -51,7 +51,8 @@ Route::middleware(['auth', ForcarRedefinirSenha::class])->group(function () {
         ->except(['create','store','edit','update','destroy']);
 
     Route::resource('movimentacoes', MovimentacaoController::class)
-        ->except(['show','edit','update']);
+        ->except(['show','edit','update'])
+        ->parameters(['movimentacoes' => 'movimentacao']);
 
     Route::resource('users', UserController::class)
         ->except(['edit','show']);

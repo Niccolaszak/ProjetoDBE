@@ -12,13 +12,26 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
+use App\Interfaces\UserRepositoryInterface;
+use App\Interfaces\CargoRepositoryInterface;
+use App\Interfaces\SetorRepositoryInterface;
+
 class UserController extends Controller
 {
-    /**
-     * Adiciona o construtor para autorização automática via Policy.
-     */
-    public function __construct()
-    {
+
+    private UserRepositoryInterface $userRepository;
+    private CargoRepositoryInterface $cargoRepository;
+    private SetorRepositoryInterface $setorRepository;
+
+    public function __construct(
+        UserRepositoryInterface $userRepository,
+        CargoRepositoryInterface $cargoRepository,
+        SetorRepositoryInterface $setorRepository
+    ) {
+        $this->userRepository = $userRepository;
+        $this->cargoRepository = $cargoRepository;
+        $this->setorRepository = $setorRepository;
+        
         $this->authorizeResource(User::class, 'user');
     }
 
@@ -27,15 +40,10 @@ class UserController extends Controller
      */
     public function index(): View
     {
-        $users = User::with(['cargo', 'setor'])
-        /*->whereHas('cargo', function($q) {
-                $q->where('nome', '!=', 'Admin');
-                $q->where('nome', '!=', 'Teste');
-            })*/
-        ->get();
 
-        $cargos = Cargo::all();
-        $setores = Setor::all();
+        $users = $this->userRepository->allWithCargoAndSetor();
+        $cargos = $this->cargoRepository->all();
+        $setores = $this->setorRepository->all();
 
         $cargosFiltrados = $cargos->filter(fn($c) => !in_array($c->nome, ['Admin', 'Teste']));
         $setoresFiltrados = $setores->filter(fn($s) => !in_array($s->nome, ['Admin', 'Teste']));
@@ -48,25 +56,23 @@ class UserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
+
+        $validated = $request->validate([
             'name'      => ['required', 'string', 'max:255'],
-            'email'     => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
+            'email'     => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique('users', 'email')],
+            'password'  => ['required', 'string', 'min:8', 'confirmed'], // Ajustado de 'defaults' para 'confirmed' se você tiver 'password_confirmation'
             'cargo_id'  => ['required', 'exists:cargos,id'],
             'setor_id'  => ['required', 'exists:setores,id'],
             'salario'   => ['required', 'numeric', 'min:0'],
         ]);
 
-        $user = User::create([
-            'name'                     => $request->name,
-            'email'                    => $request->email,
-            'password'                 => Hash::make('12345678'),
-            'cargo_id'                 => $request->cargo_id,
-            'cargo_nome'               => Cargo::find($request->cargo_id)->nome,
-            'setor_id'                 => $request->setor_id,
-            'setor_nome'               => Setor::find($request->setor_id)->nome,
-            'salario'                  => $request->salario,
-            'forcar_redefinir_senha'   => true,
-        ]);
+        $data = $validated;
+        $data['password'] = Hash::make($request->password);
+        
+        $data['cargo_nome'] = $this->cargoRepository->all()->find($request->cargo_id)->nome;
+        $data['setor_nome'] = $this->setorRepository->all()->find($request->setor_id)->nome;
+
+        $user = $this->userRepository->create($data);
 
         event(new Registered($user));
 
@@ -78,30 +84,20 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user): RedirectResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'name'      => ['required', 'string', 'max:255'],
-            'email'     => [
-                'required',
-                'string',
-                'lowercase',
-                'email',
-                'max:255',
-                Rule::unique('users', 'email')->ignore($user->id),
-            ],
+            'email'     => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'cargo_id'  => ['required', 'exists:cargos,id'],
             'setor_id'  => ['required', 'exists:setores,id'],
             'salario'   => ['required', 'numeric', 'min:0'],
         ]);
 
-        $user->update([
-            'name'        => $request->name,
-            'email'       => $request->email,
-            'cargo_id'    => $request->cargo_id,
-            'cargo_nome'  => Cargo::find($request->cargo_id)->nome,
-            'setor_id'    => $request->setor_id,
-            'setor_nome'  => Setor::find($request->setor_id)->nome,
-            'salario'     => $request->salario,
-        ]);
+        $data = $validated;
+        
+        $data['cargo_nome'] = $this->cargoRepository->all()->find($request->cargo_id)->nome;
+        $data['setor_nome'] = $this->setorRepository->all()->find($request->setor_id)->nome;
+
+        $this->userRepository->update($user, $data);
 
         return redirect()->route('users.index')->with('success', 'Usuário atualizado com sucesso!');
     }
@@ -111,19 +107,17 @@ class UserController extends Controller
      */
     public function destroy(User $user): RedirectResponse
     {
-        // Impede auto-exclusão
         if (auth()->id() === $user->id) {
             return redirect()->route('users.index')
                 ->with('error', 'Você não pode excluir sua própria conta.');
         }
 
-        // Impede exclusão do admin
         if ($user->email === "admin@admin.com") {
             return redirect()->route('users.index')
                 ->with('error', 'Você não pode excluir o usuário admin.');
         }
 
-        $user->delete();
+        $this->userRepository->delete($user);
 
         return redirect()->route('users.index')->with('success', 'Usuário excluído com sucesso!');
     }
